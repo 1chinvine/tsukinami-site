@@ -1,0 +1,281 @@
+---
+import SocialIcons from './SocialIcons.astro';
+
+const groupSns = {
+  x: 'https://twitter.com/tknm_info',
+  instagram: 'https://www.instagram.com/tknm_official',
+  tiktok: 'https://www.tiktok.com/@tknm_official',
+  youtube: 'https://www.youtube.com/@tknm_official',
+};
+---
+
+<section class="hero">
+  <!-- 左：集合写真 -->
+  <div class="hero-visual">
+    <img
+      src="/images/hero/hero-group.jpg"
+      alt="ツキナミ"
+    />
+  </div>
+
+  <!-- 右：ロゴ・説明・SNS -->
+  <div class="hero-info">
+    <div class="hero-info-inner">
+      <img
+        class="hero-logo"
+        src="/images/logo/tsukinami-logo.png"
+        alt="ツキナミ"
+      />
+
+      <p class="hero-label">
+        UNOFFICIAL FAN SITE
+      </p>
+
+      <div class="hero-decoration">
+        <span></span>
+        <b>✦</b>
+        <span></span>
+      </div>
+
+      <p class="hero-description">
+        ライブ、スケジュール、メンバー情報を<br />
+        まとめた非公式ファンサイト。
+      </p>
+
+      <!-- SNS -->
+      <div class="hero-sns">
+        <SocialIcons
+          sns={groupSns}
+          name="ツキナミ公式"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: 52% 48%;
+
+    min-height: calc(100vh - 77px);
+
+    background: var(--bg);
+  }
+
+  /* =========================
+     PHOTO
+  ========================= */
+
+  .hero-visual {
+    grid-column: 1;
+    grid-row: 1;
+
+    min-height: calc(100vh - 77px);
+
+    overflow: hidden;
+
+    -webkit-mask-image: linear-gradient(
+      to right,
+      black 0%,
+      black 75%,
+      transparent 100%
+    );
+
+    mask-image: linear-gradient(
+      to right,
+      black 0%,
+      black 75%,
+      transparent 100%
+    );
+  }
+
+  .hero-visual img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center;
+  }
+
+  /* =========================
+     INFORMATION
+  ========================= */
+
+  .hero-info {
+    grid-column: 2;
+    grid-row: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 0;
+
+    padding: 64px 48px;
+  }
+
+  .hero-info-inner {
+    width: 100%;
+    max-width: 560px;
+
+    margin: 0 auto;
+
+    text-align: center;
+  }
+
+  .hero-logo {
+    display: block;
+
+    width: min(520px, 94%);
+    height: auto;
+
+    margin: 0 auto;
+  }
+
+  .hero-label {
+    margin: 28px 0 0;
+
+    color: var(--accent);
+
+    font-size: 11px;
+    letter-spacing: 0.34em;
+  }
+
+  /* =========================
+     DECORATION
+  ========================= */
+
+  .hero-decoration {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 20px;
+
+    margin: 46px auto 42px;
+
+    color: var(--accent);
+  }
+
+  .hero-decoration span {
+    width: 82px;
+    height: 1px;
+
+    background: var(--line);
+  }
+
+  .hero-decoration b {
+    font-size: 18px;
+    font-weight: 400;
+  }
+
+  /* =========================
+     DESCRIPTION
+  ========================= */
+
+  .hero-description {
+    margin: 0;
+
+    color: var(--muted);
+
+    font-size: 14px;
+    line-height: 2;
+  }
+
+  /* =========================
+     SNS
+  ========================= */
+
+  .hero-sns {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: 32px;
+  }
+
+  /* =========================
+     MOBILE
+  ========================= */
+
+  @media (max-width: 700px) {
+    .hero {
+      display: flex;
+      flex-direction: column;
+
+      min-height: auto;
+    }
+
+    /* 写真 */
+
+    .hero-visual {
+      order: 1;
+
+      width: 100%;
+      min-height: 0;
+
+      aspect-ratio: 4 / 3;
+
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+
+    .hero-visual img {
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+      object-position: center;
+    }
+
+    /* ロゴ・情報 */
+
+    .hero-info {
+      order: 2;
+
+      width: 100%;
+
+      padding: 52px 24px 60px;
+    }
+
+    .hero-info-inner {
+      width: 100%;
+      max-width: 420px;
+
+      margin: 0 auto;
+    }
+
+    .hero-logo {
+      width: min(300px, 88%);
+    }
+
+    .hero-label {
+      margin-top: 16px;
+
+      font-size: 9px;
+      letter-spacing: 0.28em;
+    }
+
+    .hero-decoration {
+      gap: 16px;
+
+      margin: 26px auto;
+    }
+
+    .hero-decoration span {
+      width: 52px;
+    }
+
+    .hero-description {
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .hero-sns {
+      margin-top: 24px;
+    }
+  }
+</style>

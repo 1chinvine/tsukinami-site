@@ -1,0 +1,173 @@
+---
+import { getTsukinamiNews } from '../lib/bitfan';
+
+const news = await getTsukinamiNews();
+const latestNews = news.slice(0, 3);
+---
+
+<section class="latest-news">
+  <div class="inner">
+    <p class="label">OFFICIAL NEWS</p>
+    <h2>NEWS</h2>
+
+    <div class="news-list">
+      {
+        latestNews.map((item) => (
+          <article class="news-item">
+            <p class="news-date">
+              {item.date}
+            </p>
+
+            <div class="news-content">
+              <h3>{item.title}</h3>
+
+              <a
+                class="official-link"
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                公式で見る →
+              </a>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+
+    <a class="view-all" href="/news">
+      VIEW ALL →
+    </a>
+  </div>
+</section>
+
+<style>
+  .latest-news {
+    padding: 72px 40px 84px;
+    border-top: 1px solid var(--line);
+  }
+
+  .inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .label {
+    margin: 0;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+  }
+
+  h2 {
+    margin: 10px 0 34px;
+    font-size: clamp(36px, 4vw, 54px);
+    line-height: 1;
+    font-weight: 600;
+  }
+
+  .news-list {
+    border-top: 1px solid var(--line);
+  }
+
+  .news-item {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 36px;
+
+    padding: 20px 0;
+
+    border-bottom: 1px solid var(--line);
+  }
+
+  .news-date {
+    margin: 0;
+
+    color: var(--accent);
+
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+
+  .news-content h3 {
+    margin: 0;
+
+    font-size: 16px;
+    line-height: 1.5;
+    font-weight: 500;
+  }
+
+  .official-link {
+    display: inline-block;
+
+    margin-top: 8px;
+    padding-bottom: 3px;
+
+    color: var(--muted);
+
+    font-size: 9px;
+    text-decoration: none;
+
+    border-bottom: 1px solid var(--line);
+  }
+
+  .official-link:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .view-all {
+    display: inline-block;
+
+    margin-top: 26px;
+    padding-bottom: 4px;
+
+    color: var(--text);
+
+    font-size: 11px;
+    text-decoration: none;
+
+    border-bottom: 1px solid var(--accent);
+  }
+
+  @media (max-width: 700px) {
+    .latest-news {
+      padding: 44px 20px 56px;
+    }
+
+    .label {
+      font-size: 9px;
+    }
+
+    h2 {
+      margin: 8px 0 28px;
+      font-size: 34px;
+    }
+
+    .news-item {
+      grid-template-columns: 1fr;
+      gap: 6px;
+
+      padding: 15px 0;
+    }
+
+    .news-date {
+      font-size: 8px;
+    }
+
+    .news-content h3 {
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .official-link {
+      margin-top: 6px;
+      font-size: 8px;
+    }
+
+    .view-all {
+      margin-top: 22px;
+      font-size: 9px;
+    }
+  }
+</style>

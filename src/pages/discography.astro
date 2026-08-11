@@ -1,0 +1,248 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { discography } from '../data/discography';
+---
+
+<BaseLayout title="DISCOGRAPHY | ツキナミ">
+  <main class="page">
+    <h1>DISCOGRAPHY</h1>
+
+    <div class="discography-grid">
+      {
+        discography.map((release) => (
+          <article class="discography-item">
+
+            <!-- JACKET -->
+            <div class="cover">
+              <img
+                src={release.image}
+                alt={release.title}
+              />
+            </div>
+
+            <!-- TYPE -->
+            <p class="type">
+              {release.type}
+            </p>
+
+            <!-- TITLE + LISTEN -->
+            <div class="title-row">
+              <h2>{release.title}</h2>
+
+              {release.link && (
+                <a
+                  class="listen-link"
+                  href={release.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${release.title}を聴く`}
+                  title="LISTEN"
+                >
+                  <img
+                    src="/images/icons/applemusic.svg"
+                    alt=""
+                  />
+                </a>
+              )}
+            </div>
+
+            <!-- RELEASE DATE -->
+            <p class="release-date">
+              {release.releaseDate}
+            </p>
+
+          </article>
+        ))
+      }
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  /* =========================
+     PAGE
+  ========================= */
+
+  .page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 100px 40px 120px;
+  }
+
+  h1 {
+    margin: 8px 0 56px;
+
+    font-size: clamp(40px, 5vw, 64px);
+    line-height: 1;
+    font-weight: 600;
+  }
+
+  /* =========================
+     GRID
+  ========================= */
+
+  .discography-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 64px 32px;
+  }
+
+  .discography-item {
+    min-width: 0;
+  }
+
+  /* =========================
+     COVER
+  ========================= */
+
+  .cover {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+
+    overflow: hidden;
+
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .cover img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    transition: transform 0.35s ease;
+  }
+
+  .discography-item:hover .cover img {
+    transform: scale(1.03);
+  }
+
+  /* =========================
+     TYPE
+  ========================= */
+
+  .type {
+    margin: 16px 0 6px;
+
+    color: var(--accent);
+
+    font-size: 11px;
+    letter-spacing: 0.18em;
+  }
+
+  /* =========================
+     TITLE
+  ========================= */
+
+  .title-row {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+  }
+
+  h2 {
+    margin: 0;
+
+    font-size: 22px;
+    line-height: 1.4;
+    font-weight: 500;
+  }
+
+  /* =========================
+     LISTEN ICON
+  ========================= */
+
+  .listen-link {
+    display: grid;
+    place-items: center;
+
+    width: 17px;
+    height: 17px;
+
+    flex-shrink: 0;
+
+    opacity: 0.55;
+
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .listen-link img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    filter: invert(1);
+  }
+
+  .listen-link:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+
+  /* =========================
+     RELEASE DATE
+  ========================= */
+
+  .release-date {
+    margin: 10px 0 0;
+
+    color: var(--muted);
+
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  /* =========================
+     MOBILE
+  ========================= */
+
+  @media (max-width: 700px) {
+    .page {
+      padding: 40px 20px 52px;
+    }
+
+    h1 {
+      margin: 0 0 24px;
+
+      font-size: 32px;
+    }
+
+    .discography-grid {
+      grid-template-columns: repeat(2, 1fr);
+
+      gap: 30px 14px;
+    }
+
+    .type {
+      margin: 10px 0 4px;
+
+      font-size: 8px;
+    }
+
+    .title-row {
+      gap: 7px;
+    }
+
+    h2 {
+      font-size: 14px;
+    }
+
+    .listen-link {
+      width: 14px;
+      height: 14px;
+    }
+
+    .release-date {
+      margin-top: 5px;
+
+      font-size: 8px;
+    }
+  }
+</style>

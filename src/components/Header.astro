@@ -1,0 +1,103 @@
+<header>
+  <div class="logo">
+    <a href="/">
+      <img
+        src="/images/logo/tsukinami-logo.png"
+        alt="ツキナミ"
+      />
+    </a>
+  </div>
+
+  <nav>
+    <a href="/">HOME</a>
+    <a href="/news">NEWS</a>
+    <a href="/schedule">SCHEDULE</a>
+    <a href="/member">MEMBER</a>
+    <a href="/discography">DISCOGRAPHY</a>
+    <a href="/about">ABOUT</a>
+  </nav>
+</header>
+
+<style>
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 22px 40px;
+
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+  }
+
+  .logo a {
+    display: block;
+  }
+
+  .logo img {
+    display: block;
+    width: auto;
+    height: 32px;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+
+  nav a {
+    position: relative;
+
+    color: var(--text);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+  }
+
+  nav a::after {
+  content: "";
+
+  position: absolute;
+  left: 0;
+  bottom: -8px;
+
+  width: 100%;
+  height: 2px;
+
+  background: var(--accent);
+
+  transform: scaleX(0);
+  transform-origin: center;
+
+  transition: transform 0.25s ease;
+}
+
+nav a:hover::after {
+  transform: scaleX(1);
+}
+
+  @media (max-width: 700px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .logo img {
+    width: auto;
+    height: 28px;
+  }
+
+  nav {
+    width: 100%;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  nav a {
+    font-size: 11px;
+  }
+}
+</style>

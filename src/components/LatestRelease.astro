@@ -1,0 +1,402 @@
+---
+import { discography } from '../data/discography';
+
+const latestRelease = discography[0];
+---
+
+<section class="latest-release">
+  <div class="inner">
+    <p class="label">DISCOGRAPHY</p>
+    <h2>NEW RELEASE</h2>
+
+    {
+      latestRelease ? (
+        <div class="release">
+
+          <!-- JACKET -->
+          <div class="cover">
+            <img
+              src={latestRelease.image}
+              alt={latestRelease.title}
+            />
+          </div>
+
+          <!-- RELEASE INFORMATION -->
+          <div class="release-info">
+
+            <p class="type">
+              {latestRelease.type}
+            </p>
+
+            <!-- TITLE + LISTEN ICON -->
+            <div class="title-row">
+
+              <h3>
+                {latestRelease.title}
+              </h3>
+
+              {latestRelease.link && (
+                <a
+                  class="listen-link"
+                  href={latestRelease.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${latestRelease.title}を聴く`}
+                  title="LISTEN"
+                >
+                  <img
+                    class="listen-icon"
+                    src="/images/icons/applemusic.svg"
+                    alt=""
+                  />
+                </a>
+              )}
+
+            </div>
+
+            <!-- RELEASE DATE -->
+            <p class="date">
+              {latestRelease.releaseDate} RELEASE
+            </p>
+
+            <!-- DISCOGRAPHY -->
+            <a
+              class="view-all"
+              href="/discography"
+            >
+              VIEW ALL →
+            </a>
+
+          </div>
+        </div>
+      ) : (
+        <p>現在登録されている作品はありません。</p>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  /* =========================
+     SECTION
+  ========================= */
+
+  .latest-release {
+    padding: 72px 40px 84px;
+
+    border-top: 1px solid var(--line);
+  }
+
+  .inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* =========================
+     HEADING
+  ========================= */
+
+  .label {
+    margin: 0;
+
+    color: var(--muted);
+
+    font-size: 11px;
+    letter-spacing: 0.18em;
+  }
+
+  h2 {
+    margin: 10px 0 34px;
+
+    font-size: clamp(36px, 4vw, 54px);
+    line-height: 1;
+    font-weight: 600;
+  }
+
+  /* =========================
+     RELEASE
+  ========================= */
+
+  .release {
+    display: grid;
+
+    grid-template-columns: 300px minmax(0, 1fr);
+
+    gap: 48px;
+
+    align-items: center;
+
+    padding: 28px 0;
+
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* =========================
+     JACKET
+  ========================= */
+
+  .cover {
+    width: 100%;
+
+    aspect-ratio: 1 / 1;
+
+    overflow: hidden;
+
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .cover img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+  }
+
+  /* =========================
+     INFORMATION
+  ========================= */
+
+  .release-info {
+    min-width: 0;
+  }
+
+  .type {
+    margin: 0 0 12px;
+
+    color: var(--accent);
+
+    font-size: 11px;
+    letter-spacing: 0.18em;
+  }
+
+  /* =========================
+     TITLE
+  ========================= */
+
+  .title-row {
+    display: flex;
+
+    align-items: center;
+    justify-content: flex-start;
+
+    gap: 10px;
+
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .title-row h3 {
+    margin: 0;
+
+    width: auto;
+
+    font-size: 30px;
+    line-height: 1.35;
+    font-weight: 600;
+  }
+
+  /* =========================
+     LISTEN ICON
+  ========================= */
+
+  .listen-link {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 18px;
+    height: 18px;
+
+    min-width: 18px;
+    max-width: 18px;
+
+    min-height: 18px;
+    max-height: 18px;
+
+    flex: 0 0 18px;
+
+    padding: 0;
+    margin: 0;
+
+    overflow: hidden;
+
+    opacity: 0.6;
+
+    text-decoration: none;
+
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .listen-link .listen-icon {
+    display: block;
+
+    width: 18px !important;
+    height: 18px !important;
+
+    min-width: 18px;
+    max-width: 18px;
+
+    min-height: 18px;
+    max-height: 18px;
+
+    object-fit: contain;
+
+    filter: invert(1);
+  }
+
+  .listen-link:hover {
+    opacity: 1;
+
+    transform: translateY(-2px);
+  }
+
+  /* =========================
+     DATE
+  ========================= */
+
+  .date {
+    margin: 16px 0 0;
+
+    color: var(--muted);
+
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  /* =========================
+     VIEW ALL
+  ========================= */
+
+  .view-all {
+    position: relative;
+
+    display: inline-block;
+
+    margin-top: 28px;
+
+    color: var(--text);
+
+    font-size: 12px;
+    letter-spacing: 0.04em;
+
+    text-decoration: none;
+  }
+
+  .view-all::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    bottom: -5px;
+
+    width: 100%;
+    height: 1px;
+
+    background: var(--accent);
+  }
+
+  /* =========================
+     MOBILE
+  ========================= */
+
+  @media (max-width: 700px) {
+
+    .latest-release {
+      padding: 56px 20px 40px;
+    }
+
+    .label {
+      font-size: 9px;
+    }
+
+    h2 {
+      margin: 8px 0 26px;
+
+      font-size: 34px;
+    }
+
+    /* RELEASE */
+
+    .release {
+      grid-template-columns: 1fr;
+
+      gap: 20px;
+
+      padding: 20px 0;
+    }
+
+    /* JACKET */
+
+    .cover {
+      width: 210px;
+      max-width: 100%;
+    }
+
+    /* TYPE */
+
+    .type {
+      margin-bottom: 8px;
+
+      font-size: 9px;
+    }
+
+    /* TITLE */
+
+    .title-row {
+      gap: 7px;
+    }
+
+    .title-row h3 {
+      font-size: 22px;
+    }
+
+    /* LISTEN ICON */
+
+    .listen-link {
+      width: 14px;
+      height: 14px;
+
+      min-width: 14px;
+      max-width: 14px;
+
+      min-height: 14px;
+      max-height: 14px;
+
+      flex-basis: 14px;
+    }
+
+    .listen-link .listen-icon {
+      width: 14px !important;
+      height: 14px !important;
+
+      min-width: 14px;
+      max-width: 14px;
+
+      min-height: 14px;
+      max-height: 14px;
+    }
+
+    /* DATE */
+
+    .date {
+      margin-top: 12px;
+
+      font-size: 10px;
+    }
+
+    /* VIEW ALL */
+
+    .view-all {
+      margin-top: 20px;
+
+      font-size: 10px;
+    }
+  }
+</style>

@@ -1,0 +1,285 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="ABOUT | ツキナミ">
+  <main class="about-page">
+
+    <h1>ABOUT</h1>
+
+    <div class="about-grid">
+
+      <!-- GROUP PHOTO -->
+      <div class="about-image">
+        <img
+          src="/images/hero/hero-group.jpg"
+          alt="ツキナミ"
+        />
+      </div>
+
+      <!-- INFORMATION -->
+      <div class="about-content">
+
+        <p class="eyebrow">
+          ABOUT TSUKINAMI
+        </p>
+
+        <h2>
+          「ありふれた毎日を特別なものに。」
+        </h2>
+
+        <!-- DECORATION -->
+        <div class="about-decoration">
+          <span></span>
+          <b>✦</b>
+          <span></span>
+        </div>
+
+        <!-- DESCRIPTION -->
+        <div class="about-text">
+          <p>▽2026/8/7 duo MUSIC EXCHANGEにてDebut</p>
+          <p>▽カンナギマロプロデュース</p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+</BaseLayout>
+
+<style>
+  /* =========================
+     PAGE
+  ========================= */
+
+  .about-page {
+    max-width: 1320px;
+    margin: 0 auto;
+
+    padding: 72px 40px 100px;
+  }
+
+  h1 {
+    margin: 0 0 48px;
+
+    font-size: clamp(40px, 4vw, 58px);
+    line-height: 1;
+    font-weight: 600;
+  }
+
+
+  /* =========================
+     GRID
+  ========================= */
+
+  .about-grid {
+    display: grid;
+
+    /*
+      写真を少し大きく、
+      右側もキャッチコピー1行分の幅を確保
+    */
+    grid-template-columns: minmax(0, 1.15fr) minmax(500px, 1fr);
+
+    gap: 64px;
+
+    align-items: center;
+  }
+
+
+  /* =========================
+     IMAGE
+  ========================= */
+
+  .about-image {
+    width: 100%;
+
+    aspect-ratio: 4 / 3;
+
+    overflow: hidden;
+
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .about-image img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center;
+  }
+
+
+  /* =========================
+     CONTENT
+  ========================= */
+
+  .about-content {
+    min-width: 0;
+  }
+
+  .eyebrow {
+    margin: 0 0 18px;
+
+    color: var(--accent);
+
+    font-size: 11px;
+    letter-spacing: 0.2em;
+  }
+
+
+  /* =========================
+     CATCH COPY
+  ========================= */
+
+  .about-content h2 {
+    margin: 0;
+
+    font-size: clamp(25px, 2.1vw, 34px);
+    line-height: 1.4;
+    font-weight: 600;
+
+    /*
+      PCでは絶対に1行
+    */
+    white-space: nowrap;
+  }
+
+
+  /* =========================
+     DECORATION
+  ========================= */
+
+  .about-decoration {
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+
+    width: 100%;
+
+    margin: 34px 0 30px;
+
+    color: var(--accent);
+  }
+
+  .about-decoration span {
+    flex: 1;
+
+    height: 1px;
+
+    background: var(--line);
+  }
+
+  .about-decoration b {
+    flex-shrink: 0;
+
+    font-size: 12px;
+    font-weight: 400;
+  }
+
+
+  /* =========================
+     TEXT
+  ========================= */
+
+  .about-text {
+    color: var(--muted);
+
+    font-size: 13px;
+    line-height: 1.8;
+  }
+
+  .about-text p {
+    margin: 0;
+  }
+
+  .about-text p + p {
+    margin-top: 4px;
+  }
+
+
+  /* =========================
+     MOBILE
+  ========================= */
+
+  @media (max-width: 700px) {
+
+    .about-page {
+      padding: 40px 20px 64px;
+    }
+
+    h1 {
+      margin-bottom: 32px;
+
+      font-size: 32px;
+    }
+
+
+    /* 1カラム */
+
+    .about-grid {
+      grid-template-columns: 1fr;
+
+      gap: 34px;
+    }
+
+
+    /* PHOTO */
+
+    .about-image {
+      aspect-ratio: 4 / 3;
+    }
+
+
+    /* ABOUT TSUKINAMI */
+
+    .eyebrow {
+      margin-bottom: 12px;
+
+      font-size: 9px;
+      letter-spacing: 0.18em;
+    }
+
+
+    /* CATCH COPY */
+
+    .about-content h2 {
+      font-size: 22px;
+      line-height: 1.5;
+
+      /*
+        スマホでは1行固定を解除
+      */
+      white-space: normal;
+    }
+
+
+    /* DECORATION */
+
+    .about-decoration {
+      gap: 10px;
+
+      margin: 24px 0 22px;
+    }
+
+    .about-decoration b {
+      font-size: 10px;
+    }
+
+
+    /* DESCRIPTION */
+
+    .about-text {
+      font-size: 11px;
+      line-height: 1.8;
+    }
+
+    .about-text p + p {
+      margin-top: 3px;
+    }
+  }
+</style>

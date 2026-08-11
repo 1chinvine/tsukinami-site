@@ -1,0 +1,254 @@
+---
+import { getTsukinamiEvents } from '../lib/notion';
+
+const events = await getTsukinamiEvents();
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const nextEvent = events
+  .filter((event) => {
+    if (event.status !== '予定') return false;
+    if (!event.date) return false;
+
+    const eventDate = new Date(`${event.date}T00:00:00`);
+
+    return eventDate >= today;
+  })
+  .sort((a, b) => a.date.localeCompare(b.date))[0];
+
+const formatDate = (dateString: string) => {
+  const date = new Date(`${dateString}T00:00:00`);
+
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  const weekdays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+  const weekday = weekdays[date.getDay()];
+
+  return {
+    date: `${month}.${day}`,
+    weekday,
+  };
+};
+
+const formattedDate = nextEvent
+  ? formatDate(nextEvent.date)
+  : null;
+---
+
+<section class="next-schedule">
+  <div class="inner">
+    <p class="label">SCHEDULE</p>
+    <h2>NEXT LIVE</h2>
+
+    {
+      nextEvent ? (
+        <article class="event">
+
+          <div class="date">
+            <span class="date-main">
+              {formattedDate?.date}
+            </span>
+
+            <span class="date-weekday">
+              {formattedDate?.weekday}
+            </span>
+          </div>
+
+          <div>
+            <h3>{nextEvent.title}</h3>
+
+            {nextEvent.venue && (
+              <p>会場：{nextEvent.venue}</p>
+            )}
+
+            {nextEvent.time && (
+              <p>時刻：{nextEvent.time}</p>
+            )}
+
+            {nextEvent.url && (
+              <a
+                class="official-link"
+                href={nextEvent.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                公式情報 →
+              </a>
+            )}
+          </div>
+
+        </article>
+      ) : (
+        <p>現在予定されているイベントはありません。</p>
+      )
+    }
+
+    <a class="view-all" href="/schedule">
+      VIEW ALL →
+    </a>
+  </div>
+</section>
+
+<style>
+ .next-schedule {
+  padding: 72px 40px 84px;
+  border-top: 1px solid var(--line);
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.label {
+  margin: 0;
+
+  font-size: 11px;
+  letter-spacing: 0.18em;
+
+  color: var(--muted);
+}
+
+h2 {
+  margin: 10px 0 34px;
+
+  font-size: clamp(36px, 4vw, 54px);
+  line-height: 1;
+  font-weight: 600;
+}
+
+/* イベント全体 */
+
+.event {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+
+  gap: 48px;
+
+  padding: 28px 0;
+
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+/* 日付 */
+
+.date {
+  display: flex;
+  flex-direction: column;
+
+  padding-top: 2px;
+}
+
+.date-main {
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1;
+
+  letter-spacing: -0.02em;
+}
+
+.date-weekday {
+  margin-top: 8px;
+
+  font-size: 10px;
+  letter-spacing: 0.18em;
+
+  color: var(--accent);
+}
+
+/* イベント内容 */
+
+h3 {
+  margin: 0 0 12px;
+
+  font-size: 22px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.event p {
+  margin: 5px 0;
+
+  font-size: 13px;
+  line-height: 1.6;
+
+  color: var(--muted);
+}
+
+/* リンク */
+
+.official-link,
+.view-all {
+  position: relative;
+
+  display: inline-block;
+
+  color: var(--text);
+
+  font-size: 12px;
+  letter-spacing: 0.04em;
+
+  text-decoration: none;
+}
+
+.official-link {
+  margin-top: 12px;
+}
+
+.view-all {
+  margin-top: 28px;
+}
+
+/* 下線 */
+
+.official-link::after,
+.view-all::after {
+  content: "";
+
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+
+  width: 100%;
+  height: 1px;
+
+  background: var(--accent);
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+  .next-schedule {
+  padding: 44px 20px 56px;
+}
+
+  h2 {
+    margin-bottom: 28px;
+
+    font-size: 38px;
+  }
+
+  .event {
+    grid-template-columns: 1fr;
+
+    gap: 18px;
+
+    padding: 24px 0;
+  }
+
+  .date-main {
+    font-size: 30px;
+  }
+
+  h3 {
+    font-size: 19px;
+  }
+
+  .view-all {
+    margin-top: 24px;
+  }
+}
+</style>
