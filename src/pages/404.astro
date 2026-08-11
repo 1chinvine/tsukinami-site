@@ -1,0 +1,132 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="404 | ツキナミ">
+  <main class="not-found">
+    <div class="not-found-content">
+      <p class="code">404</p>
+
+      <h1>PAGE NOT FOUND</h1>
+
+      <div class="decoration">
+        <span></span>
+        <b>✦</b>
+        <span></span>
+      </div>
+
+      <p class="message">
+        お探しのページは見つかりませんでした。
+      </p>
+
+      <a href="/" class="home-link">
+        BACK TO HOME
+      </a>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .not-found {
+    min-height: 70vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 80px 40px;
+  }
+
+  .not-found-content {
+    width: min(520px, 100%);
+    text-align: center;
+  }
+
+  .code {
+    margin: 0 0 12px;
+
+    color: var(--accent);
+
+    font-size: 14px;
+    letter-spacing: 0.3em;
+  }
+
+  h1 {
+    margin: 0;
+
+    font-size: clamp(36px, 5vw, 58px);
+    line-height: 1.1;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .decoration {
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+
+    margin: 34px 0;
+
+    color: var(--accent);
+  }
+
+  .decoration span {
+    flex: 1;
+    height: 1px;
+
+    background: var(--line);
+  }
+
+  .decoration b {
+    font-size: 12px;
+    font-weight: 400;
+  }
+
+  .message {
+    margin: 0 0 32px;
+
+    color: var(--muted);
+
+    font-size: 13px;
+    line-height: 1.8;
+  }
+
+  .home-link {
+    display: inline-block;
+
+    padding: 13px 24px;
+
+    border: 1px solid var(--line);
+
+    color: var(--text);
+
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-decoration: none;
+
+    transition:
+      background 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .home-link:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--accent);
+  }
+
+  @media (max-width: 700px) {
+    .not-found {
+      min-height: 65vh;
+      padding: 64px 20px;
+    }
+
+    h1 {
+      font-size: 34px;
+    }
+
+    .message {
+      font-size: 12px;
+    }
+  }
+</style>
