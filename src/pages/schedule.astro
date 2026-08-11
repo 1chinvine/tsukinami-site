@@ -83,35 +83,36 @@ const pastEvents = events
                     )}
                   </div>
 
-                  <div class="event-actions">
-                    {event.url && (
-                      <a
-                        class="official-link"
-                        href={event.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        公式情報 →
-                      </a>
-                    )}
-
-                    {calendarUrl && (
-                      <a
-                        class="calendar-link"
-                        href={calendarUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={`${event.title}をGoogleカレンダーに追加`}
-                        title="Google Calendarに追加"
-                      >
-                        <img
-                          src="/images/icons/googlecalendar.svg"
-                          alt=""
-                        />
-                      </a>
-                    )}
-                  </div>
+                  {event.url && (
+                    <a
+                      class="official-link"
+                      href={event.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      公式情報 →
+                    </a>
+                  )}
                 </div>
+
+                {calendarUrl && (
+                  <div class="calendar-action">
+                    <a
+                      class="calendar-link"
+                      href={calendarUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${event.title}をGoogleカレンダーに追加`}
+                      title="Google Calendarに追加"
+                    >
+                      <img
+                        src="/images/icons/googlecalendar.svg"
+                        alt=""
+                      />
+                      <span>追加</span>
+                    </a>
+                  </div>
+                )}
               </article>
             );
           })
@@ -131,7 +132,7 @@ const pastEvents = events
             const formatted = formatDate(event.date);
 
             return (
-              <article class="schedule-item">
+              <article class="schedule-item past-item">
                 <div class="date">
                   <span class="date-main">{formatted.date}</span>
                   <span class="date-weekday">{formatted.weekday}</span>
@@ -220,15 +221,22 @@ const pastEvents = events
 
   .schedule-item {
     display: grid;
-    grid-template-columns: 130px 1fr;
+    grid-template-columns: 108px minmax(0, 1fr) auto;
     gap: 36px;
+    align-items: center;
+
     padding: 22px 0;
     border-bottom: 1px solid var(--line);
+  }
+
+  .past-item {
+    grid-template-columns: 130px minmax(0, 1fr);
   }
 
   .date {
     display: flex;
     flex-direction: column;
+    align-self: start;
   }
 
   .date-main {
@@ -243,6 +251,10 @@ const pastEvents = events
     color: var(--accent);
     font-size: 9px;
     letter-spacing: 0.16em;
+  }
+
+  .event-info {
+    min-width: 0;
   }
 
   .event-info h2 {
@@ -271,20 +283,17 @@ const pastEvents = events
     letter-spacing: 0.1em;
   }
 
-  .event-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 10px;
-  }
-
   .official-link {
     display: inline-block;
+
+    margin-top: 10px;
+    padding-bottom: 3px;
+
     color: var(--text);
     font-size: 10px;
     text-decoration: none;
+
     border-bottom: 1px solid var(--line);
-    padding-bottom: 3px;
   }
 
   .official-link:hover {
@@ -292,36 +301,70 @@ const pastEvents = events
     border-color: var(--accent);
   }
 
+  /* =========================
+     GOOGLE CALENDAR
+  ========================= */
+
+  .calendar-action {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    min-width: 102px;
+  }
+
   .calendar-link {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 9px;
 
-    width: 28px;
-    height: 28px;
+    min-width: 96px;
+    height: 42px;
 
-    opacity: 0.6;
+    padding: 0 15px;
+
+    color: var(--text);
+
+    font-size: 11px;
+    letter-spacing: 0.08em;
+
+    text-decoration: none;
+
+    border: 1px solid var(--line);
+    border-radius: 22px;
 
     transition:
-      opacity 0.2s ease,
+      border-color 0.2s ease,
+      background 0.2s ease,
+      color 0.2s ease,
       transform 0.2s ease;
   }
 
- .calendar-link img {
-  display: block;
+  .calendar-link img {
+    display: block;
 
-  width: 15px;
-  height: 15px;
+    width: 20px;
+    height: 20px;
 
-  object-fit: contain;
+    object-fit: contain;
 
-  /* 黒SVG → 白 */
-  filter: invert(1);
-}
+    /* 黒SVG → 白 */
+    filter: invert(1);
+  }
+
+  .calendar-link span {
+    white-space: nowrap;
+  }
 
   .calendar-link:hover {
-    opacity: 1;
-    transform: translateY(-2px);
+    color: var(--accent);
+
+    border-color: var(--accent);
+
+    background: rgba(255, 255, 255, 0.04);
+
+    transform: translateY(-1px);
   }
 
   .past {
@@ -331,6 +374,10 @@ const pastEvents = events
   .past .date-weekday {
     color: var(--muted);
   }
+
+  /* =========================
+     MOBILE
+  ========================= */
 
   @media (max-width: 700px) {
     .schedule-page {
@@ -358,9 +405,11 @@ const pastEvents = events
       font-size: 8px;
     }
 
-    .schedule-item {
+    .schedule-item,
+    .past-item {
       grid-template-columns: 1fr;
       gap: 8px;
+
       padding: 16px 0;
     }
 
@@ -392,23 +441,33 @@ const pastEvents = events
       font-size: 7px;
     }
 
-    .event-actions {
-      gap: 8px;
-      margin-top: 6px;
-    }
-
     .official-link {
+      margin-top: 7px;
       font-size: 8px;
     }
 
+    .calendar-action {
+      min-width: 0;
+
+      margin-top: 5px;
+
+      justify-content: flex-end;
+    }
+
     .calendar-link {
-      width: 30px;
-      height: 30px;
+      min-width: 86px;
+      height: 38px;
+
+      gap: 7px;
+
+      padding: 0 13px;
+
+      font-size: 10px;
     }
 
     .calendar-link img {
-      width: 14px;
-      height: 14px;
+      width: 18px;
+      height: 18px;
     }
   }
 </style>
