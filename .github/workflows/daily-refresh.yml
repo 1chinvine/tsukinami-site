@@ -2,10 +2,8 @@ name: Daily Refresh
 
 on:
   schedule:
-    # 毎日 21:00 UTC = 日本時間 06:00
     - cron: '0 21 * * *'
 
-  # GitHubの画面から手動更新もできるようにする
   workflow_dispatch:
 
 jobs:
