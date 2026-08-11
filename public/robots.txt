@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://tsukinami-site.vercel.app/sitemap-index.xml
