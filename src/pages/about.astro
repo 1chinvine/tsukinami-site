@@ -24,8 +24,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           ABOUT TSUKINAMI
         </p>
 
+        <!-- CATCH COPY -->
         <h2>
-          「ありふれた毎日を特別なものに。」
+          <span>「ありふれた毎日を</span>
+          <span>特別なものに。」</span>
         </h2>
 
         <!-- DECORATION -->
@@ -76,11 +78,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .about-grid {
     display: grid;
 
-    /*
-      写真を少し大きく、
-      右側もキャッチコピー1行分の幅を確保
-    */
-    grid-template-columns: minmax(0, 1.15fr) minmax(500px, 1fr);
+    grid-template-columns:
+      minmax(0, 1.15fr)
+      minmax(500px, 1fr);
 
     gap: 64px;
 
@@ -136,16 +136,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   ========================= */
 
   .about-content h2 {
+    display: flex;
+    align-items: baseline;
+
     margin: 0;
 
     font-size: clamp(25px, 2.1vw, 34px);
     line-height: 1.4;
     font-weight: 600;
 
-    /*
-      PCでは絶対に1行
-    */
     white-space: nowrap;
+  }
+
+  .about-content h2 span {
+    display: inline;
   }
 
 
@@ -219,7 +223,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     }
 
 
-    /* 1カラム */
+    /* 1 COLUMN */
 
     .about-grid {
       grid-template-columns: 1fr;
@@ -242,19 +246,27 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
       font-size: 9px;
       letter-spacing: 0.18em;
+
+      text-align: center;
     }
 
 
     /* CATCH COPY */
 
     .about-content h2 {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
       font-size: 22px;
       line-height: 1.5;
 
-      /*
-        スマホでは1行固定を解除
-      */
+      text-align: center;
       white-space: normal;
+    }
+
+    .about-content h2 span {
+      display: block;
     }
 
 
