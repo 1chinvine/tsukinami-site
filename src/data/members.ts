@@ -7,6 +7,8 @@ export const members = [
     role: 'リーダー',
     birthday: '',
     color: 'スカーレットムーン',
+    colorCode: '#ce0000',
+    catchphrase: '幸せを運ぶおてんば招き猫ちゃん',
     image: '/images/members/member-a.jpg',
     bio: '',
 
@@ -25,6 +27,8 @@ export const members = [
     role: 'サブリーダー',
     birthday: '',
     color: 'パールムーン',
+    colorCode: '#FFFFFF',
+    catchphrase: '今宵も惑わす女神様',
     image: '/images/members/member-b.jpg',
     bio: '',
 
@@ -43,6 +47,8 @@ export const members = [
     role: '',
     birthday: '',
     color: 'ライラックムーン',
+    colorCode: '#b5a5d6',
+    catchphrase: '一から始める藤室いちか！',
     image: '/images/members/member-c.jpg',
     bio: '',
 
@@ -61,6 +67,8 @@ export const members = [
     role: '',
     birthday: '',
     color: 'ピンクムーン',
+    colorCode: '#f7c6ce',
+    catchphrase: '貴方の心の放牧地',
     image: '/images/members/member-d.jpg',
     bio: '',
 
@@ -79,6 +87,8 @@ export const members = [
     role: '',
     birthday: '',
     color: 'エメラルドムーン',
+    colorCode: '#6ba54a',
+    catchphrase: '貴方を見つめる目、貴方に見つかる目',
     image: '/images/members/member-e.jpg',
     bio: '',
 
@@ -97,6 +107,8 @@ export const members = [
     role: '',
     birthday: '',
     color: 'アクアムーン',
+    colorCode: '#9cc6ef',
+    catchphrase: 'いつでも凛々しくパワフルボイス！',
     image: '/images/members/member-f.jpg',
     bio: '',
 

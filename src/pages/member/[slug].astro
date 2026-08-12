@@ -19,62 +19,129 @@ const { member } = Astro.props;
 
 <BaseLayout title={`${member.name} | ツキナミ`}>
   <main class="profile">
-    <a class="back" href="/member">← MEMBER</a>
+
+    <a class="back" href="/member">
+      ← MEMBER
+    </a>
 
     <div class="profile-grid">
+
+      <!-- =========================
+           PHOTO
+      ========================= -->
+
       <div class="profile-image">
-        <img src={member.image} alt={member.name} />
+        <img
+          src={member.image}
+          alt={member.name}
+        />
       </div>
 
-      <div class="profile-info">
-        <div class="member-name">
-  <h1>{member.name}</h1>
+      <!-- =========================
+           PROFILE
+      ========================= -->
 
-  <p class="name-reading">
-    {member.nameEn}
-    <span>/</span>
-    {member.nameKana}
-  </p>
-</div>
+      <div class="profile-info">
+
+        <!-- =========================
+             NAME
+        ========================= -->
+
+        <div class="member-name">
+          <h1>{member.name}</h1>
+
+          <p class="name-reading">
+            {member.nameEn}
+            <span>/</span>
+            {member.nameKana}
+          </p>
+        </div>
+
+        <!-- =========================
+             BASIC INFORMATION
+        ========================= -->
 
         <dl>
           <div>
             <dt>BIRTHDAY</dt>
-            <dd>{member.birthday || '---'}</dd>
+
+            <dd>
+              {member.birthday || '---'}
+            </dd>
           </div>
 
           <div>
             <dt>COLOR</dt>
-            <dd>{member.color || '---'}</dd>
+
+            <dd
+              class="member-color"
+              style={`color: ${member.colorCode}`}
+            >
+              {member.color || '---'}
+            </dd>
+          </div>
+
+          <div>
+            <dt>CATCHPHRASE</dt>
+
+            <dd>
+              {member.catchphrase || '---'}
+            </dd>
           </div>
         </dl>
 
-        <p class="bio">
-          {member.bio}
-        </p>
+        <!-- =========================
+             BIO
+        ========================= -->
 
-        <SocialIcons
-  sns={member.sns}
-  name={member.name}
-/>
+        {member.bio && (
+          <p class="bio">
+            {member.bio}
+          </p>
+        )}
+
+        <!-- =========================
+             SNS
+        ========================= -->
+
+        <div class="member-sns">
+          <SocialIcons
+            sns={member.sns}
+            name={member.name}
+          />
+        </div>
+
       </div>
     </div>
   </main>
 </BaseLayout>
 
 <style>
+  /* =========================
+     PAGE
+  ========================= */
+
   .profile {
     max-width: 1200px;
     margin: 0 auto;
+
     padding: 80px 40px 120px;
   }
 
+  /* =========================
+     BACK
+  ========================= */
+
   .back {
     display: inline-block;
+
     margin-bottom: 48px;
+
     color: var(--muted);
+
     font-size: 12px;
     letter-spacing: 0.12em;
+
     text-decoration: none;
   }
 
@@ -82,182 +149,250 @@ const { member } = Astro.props;
     color: var(--accent);
   }
 
+  /* =========================
+     GRID
+  ========================= */
+
   .profile-grid {
     display: grid;
-    grid-template-columns: minmax(320px, 1fr) 1fr;
+
+    grid-template-columns:
+      minmax(320px, 1fr)
+      1fr;
+
     gap: 72px;
+
     align-items: start;
   }
 
+  /* =========================
+     PHOTO
+  ========================= */
+
   .profile-image {
     aspect-ratio: 3 / 4;
+
     overflow: hidden;
+
     background: rgba(255, 255, 255, 0.06);
   }
 
   .profile-image img {
     display: block;
+
     width: 100%;
     height: 100%;
+
     object-fit: cover;
   }
+
+  /* =========================
+     PROFILE INFORMATION
+  ========================= */
 
   .profile-info {
     padding-top: 16px;
   }
 
+  /* =========================
+     NAME
+  ========================= */
+
   .member-name {
-  margin-bottom: 36px;
-}
+    margin-bottom: 36px;
+  }
 
-.member-name h1 {
-  margin: 0;
-  font-size: 48px;
-  line-height: 1.15;
-  font-weight: 600;
-}
+  .member-name h1 {
+    margin: 0;
 
-.name-reading {
-  margin: 10px 0 0;
+    font-size: 48px;
+    line-height: 1.15;
+    font-weight: 600;
+  }
 
-  color: var(--accent);
+  .name-reading {
+    margin: 10px 0 0;
 
-  font-size: 11px;
-  letter-spacing: 0.14em;
-}
+    color: var(--accent);
 
-.name-reading span {
-  margin: 0 8px;
-  color: var(--muted);
-}
+    font-size: 11px;
+    letter-spacing: 0.14em;
+  }
 
+  .name-reading span {
+    margin: 0 8px;
 
+    color: var(--muted);
+  }
+
+  /* =========================
+     BASIC INFORMATION
+  ========================= */
 
   dl {
     margin: 0;
+
     border-top: 1px solid var(--line);
   }
 
   dl div {
     display: grid;
+
     grid-template-columns: 120px 1fr;
+
     padding: 18px 0;
+
     border-bottom: 1px solid var(--line);
   }
 
   dt {
     color: var(--muted);
+
     font-size: 11px;
     letter-spacing: 0.12em;
   }
 
   dd {
     margin: 0;
+
     font-size: 15px;
+    line-height: 1.6;
   }
+
+  /* =========================
+     MEMBER COLOR
+  ========================= */
+
+  .member-color {
+    font-weight: 600;
+
+    letter-spacing: 0.04em;
+  }
+
+  /* =========================
+     BIO
+  ========================= */
 
   .bio {
     margin: 40px 0 0;
+
     color: var(--muted);
+
     line-height: 1.9;
   }
 
-  .sns {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
+  /* =========================
+     SNS
+  ========================= */
+
+  .member-sns {
     margin-top: 36px;
   }
 
-  .sns a {
-    color: var(--text);
-    font-size: 12px;
-    letter-spacing: 0.08em;
-    text-decoration: none;
-    border-bottom: 1px solid var(--line);
-    padding-bottom: 4px;
-  }
-
-  .sns a:hover {
-    color: var(--accent);
-    border-color: var(--accent);
-  }
+  /* =========================
+     MOBILE
+  ========================= */
 
   @media (max-width: 700px) {
-  .profile {
-    padding: 40px 20px 52px;
+
+    .profile {
+      padding: 40px 20px 52px;
+    }
+
+    .back {
+      margin-bottom: 24px;
+    }
+
+    .profile-grid {
+      grid-template-columns: 1fr;
+
+      gap: 28px;
+    }
+
+    /* =========================
+       PHOTO
+    ========================= */
+
+    .profile-image {
+      width: 84%;
+      max-width: 320px;
+
+      margin: 0 auto;
+
+      aspect-ratio: 3 / 4;
+    }
+
+    /* =========================
+       PROFILE
+    ========================= */
+
+    .profile-info {
+      padding-top: 0;
+    }
+
+    /* =========================
+       NAME
+    ========================= */
+
+    .member-name {
+      margin-bottom: 26px;
+    }
+
+    .member-name h1 {
+      margin: 0;
+
+      font-size: 28px;
+    }
+
+    .name-reading {
+      margin: 7px 0 0;
+
+      color: var(--accent);
+
+      font-size: 9px;
+      letter-spacing: 0.1em;
+    }
+
+    .name-reading span {
+      margin: 0 5px;
+    }
+
+    /* =========================
+       BASIC INFORMATION
+    ========================= */
+
+    dl div {
+      grid-template-columns: 90px 1fr;
+
+      padding: 12px 0;
+    }
+
+    dt {
+      font-size: 9px;
+    }
+
+    dd {
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    /* =========================
+       BIO
+    ========================= */
+
+    .bio {
+      margin-top: 28px;
+
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    /* =========================
+       SNS
+    ========================= */
+
+    .member-sns {
+      margin-top: 24px;
+    }
   }
-
-  .back {
-    margin-bottom: 24px;
-  }
-
-  .profile-grid {
-    grid-template-columns: 1fr;
-    gap: 28px;
-  }
-
-  .profile-image {
-    width: 84%;
-    max-width: 320px;
-    margin: 0 auto;
-
-    aspect-ratio: 3 / 4;
-  }
-
-  .profile-info {
-    padding-top: 0;
-  }
-
-  .member-name {
-    margin-bottom: 26px;
-  }
-
-  .member-name h1 {
-    margin: 0;
-    font-size: 28px;
-  }
-
-  .name-reading {
-    margin: 7px 0 0;
-
-    color: var(--accent);
-
-    font-size: 9px;
-    letter-spacing: 0.1em;
-  }
-
-  .name-reading span {
-    margin: 0 5px;
-  }
-
-  dl div {
-    grid-template-columns: 90px 1fr;
-    padding: 12px 0;
-  }
-
-  dt {
-    font-size: 9px;
-  }
-
-  dd {
-    font-size: 13px;
-  }
-
-  .bio {
-    margin-top: 28px;
-
-    font-size: 12px;
-    line-height: 1.8;
-  }
-
-  .sns {
-    gap: 12px;
-    margin-top: 24px;
-  }
-
-  .sns a {
-    font-size: 10px;
-  }
-}
 </style>
