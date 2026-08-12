@@ -39,16 +39,13 @@ const nextEvent = events
 
 /*
   表示用の日付
-  MM.DD + 曜日
+  YYYY-MM-DDを直接分解することで
+  実行環境のタイムゾーンによる日付ズレを防ぐ
 */
 const formatDate = (dateString: string) => {
-  /*
-    日本時間の日付として明示的に生成
-  */
-  const date = new Date(`${dateString}T00:00:00+09:00`);
-
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const [year, month, day] = dateString
+    .split('-')
+    .map(Number);
 
   const weekdays = [
     'SUN',
@@ -60,9 +57,13 @@ const formatDate = (dateString: string) => {
     'SAT',
   ];
 
+  const weekdayIndex = new Date(
+    Date.UTC(year, month - 1, day)
+  ).getUTCDay();
+
   return {
-    date: `${month}.${day}`,
-    weekday: weekdays[date.getDay()],
+    date: `${String(month).padStart(2, '0')}.${String(day).padStart(2, '0')}`,
+    weekday: weekdays[weekdayIndex],
   };
 };
 
