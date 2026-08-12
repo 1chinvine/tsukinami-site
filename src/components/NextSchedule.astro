@@ -67,8 +67,19 @@ const formatDate = (dateString: string) => {
   };
 };
 
+/*
+  Google Maps検索URL
+*/
+const createGoogleMapsUrl = (venue: string) => {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue)}`;
+};
+
 const formattedDate = nextEvent
   ? formatDate(nextEvent.date)
+  : null;
+
+const mapUrl = nextEvent?.venue
+  ? createGoogleMapsUrl(nextEvent.venue)
   : null;
 ---
 
@@ -92,13 +103,33 @@ const formattedDate = nextEvent
             </span>
           </div>
 
-          <div>
+          <div class="event-info">
             <h3>{nextEvent.title}</h3>
 
             {nextEvent.venue && (
-              <p>
-                会場：{nextEvent.venue}
-              </p>
+              <div class="venue-row">
+                <p>
+                  会場：{nextEvent.venue}
+                </p>
+
+                {mapUrl && (
+                  <a
+                    class="map-link"
+                    href={mapUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${nextEvent.venue}をGoogle Mapsで開く`}
+                    title="Google Mapsで開く"
+                  >
+                    <img
+                      src="/images/icons/googlemaps.svg"
+                      alt=""
+                    />
+
+                    <span>MAP</span>
+                  </a>
+                )}
+              </div>
             )}
 
             {nextEvent.time && (
@@ -137,6 +168,10 @@ const formattedDate = nextEvent
 </section>
 
 <style>
+  /* =========================
+     SECTION
+  ========================= */
+
   .next-schedule {
     padding: 72px 40px 84px;
 
@@ -181,6 +216,10 @@ const formattedDate = nextEvent
 
     border-top: 1px solid var(--line);
     border-bottom: 1px solid var(--line);
+  }
+
+  .event-info {
+    min-width: 0;
   }
 
   /* =========================
@@ -233,7 +272,79 @@ const formattedDate = nextEvent
   }
 
   /* =========================
-     LINK
+     VENUE + MAP
+  ========================= */
+
+  .venue-row {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    flex-wrap: wrap;
+  }
+
+  .venue-row p {
+    margin: 5px 0;
+  }
+
+  .map-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    min-width: 72px;
+    height: 30px;
+
+    padding: 0 10px;
+
+    color: var(--text);
+
+    font-size: 9px;
+    letter-spacing: 0.08em;
+
+    text-decoration: none;
+
+    border: 1px solid var(--line);
+    border-radius: 16px;
+
+    transition:
+      border-color 0.2s ease,
+      background 0.2s ease,
+      color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .map-link img {
+    display: block;
+
+    width: 12px;
+    height: 12px;
+
+    object-fit: contain;
+
+    /* 黒SVG → 白 */
+    filter: invert(1);
+  }
+
+  .map-link span {
+    white-space: nowrap;
+  }
+
+  .map-link:hover {
+    color: var(--accent);
+
+    border-color: var(--accent);
+
+    background: rgba(255, 255, 255, 0.04);
+
+    transform: translateY(-1px);
+  }
+
+  /* =========================
+     LINKS
   ========================= */
 
   .official-link,
@@ -302,6 +413,26 @@ const formattedDate = nextEvent
 
     h3 {
       font-size: 19px;
+    }
+
+    .venue-row {
+      gap: 8px;
+    }
+
+    .map-link {
+      min-width: 66px;
+      height: 28px;
+
+      gap: 5px;
+
+      padding: 0 9px;
+
+      font-size: 8px;
+    }
+
+    .map-link img {
+      width: 11px;
+      height: 11px;
     }
 
     .view-all {

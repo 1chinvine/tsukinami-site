@@ -57,6 +57,13 @@ const formatDate = (dateString: string) => {
 };
 
 /*
+  Google Maps検索URL
+*/
+const createGoogleMapsUrl = (venue: string) => {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue)}`;
+};
+
+/*
   今日以降
 */
 const upcomingEvents = events
@@ -103,9 +110,14 @@ const pastEvents = events
           upcomingEvents.map((event) => {
             const formatted = formatDate(event.date);
             const calendarUrl = createGoogleCalendarUrl(event);
+            const mapUrl = event.venue
+              ? createGoogleMapsUrl(event.venue)
+              : null;
 
             return (
               <article class="schedule-item">
+
+                <!-- DATE -->
 
                 <div class="date">
                   <span class="date-main">
@@ -117,6 +129,8 @@ const pastEvents = events
                   </span>
                 </div>
 
+                <!-- EVENT INFORMATION -->
+
                 <div class="event-info">
 
                   <h2>
@@ -126,10 +140,32 @@ const pastEvents = events
                   <div class="event-meta">
 
                     {event.venue && (
-                      <p>
-                        <span>VENUE</span>
-                        {event.venue}
-                      </p>
+                      <div class="venue-row">
+                        <p>
+                          <span>VENUE</span>
+                          {event.venue}
+                        </p>
+
+                        {mapUrl && (
+                          <a
+                            class="map-link"
+                            href={mapUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`${event.venue}をGoogle Mapsで開く`}
+                            title="Google Mapsで開く"
+                          >
+                            <img
+                              src="/images/icons/googlemaps.svg"
+                              alt=""
+                            />
+
+                            <span>
+                              MAP
+                            </span>
+                          </a>
+                        )}
+                      </div>
                     )}
 
                     {event.time && (
@@ -153,6 +189,8 @@ const pastEvents = events
                   )}
 
                 </div>
+
+                <!-- GOOGLE CALENDAR -->
 
                 {calendarUrl && (
                   <div class="calendar-action">
@@ -210,6 +248,8 @@ const pastEvents = events
             return (
               <article class="schedule-item past-item">
 
+                <!-- DATE -->
+
                 <div class="date">
 
                   <span class="date-main">
@@ -221,6 +261,8 @@ const pastEvents = events
                   </span>
 
                 </div>
+
+                <!-- EVENT INFORMATION -->
 
                 <div class="event-info">
 
@@ -368,13 +410,84 @@ const pastEvents = events
     line-height: 1.5;
   }
 
-  .event-meta span {
+  .event-meta p > span {
     display: inline-block;
     width: 56px;
     color: var(--accent);
     font-size: 8px;
     letter-spacing: 0.1em;
   }
+
+  /* =========================
+     VENUE + MAP
+  ========================= */
+
+  .venue-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .venue-row p {
+    margin: 5px 0;
+  }
+
+  .map-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    min-width: 72px;
+    height: 30px;
+
+    padding: 0 10px;
+
+    color: var(--text);
+
+    font-size: 9px;
+    letter-spacing: 0.08em;
+
+    text-decoration: none;
+
+    border: 1px solid var(--line);
+    border-radius: 16px;
+
+    transition:
+      border-color 0.2s ease,
+      background 0.2s ease,
+      color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .map-link img {
+  display: block;
+
+  width: 16px;
+  height: 16px;
+
+  object-fit: contain;
+
+  /* 黒SVG → 白 */
+  filter: invert(1);
+}
+
+  .map-link span {
+    white-space: nowrap;
+  }
+
+  .map-link:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+
+    background: rgba(255, 255, 255, 0.04);
+
+    transform: translateY(-1px);
+  }
+
+  /* =========================
+     OFFICIAL LINK
+  ========================= */
 
   .official-link {
     display: inline-block;
@@ -458,6 +571,10 @@ const pastEvents = events
     transform: translateY(-1px);
   }
 
+  /* =========================
+     PAST
+  ========================= */
+
   .past {
     opacity: 0.55;
   }
@@ -527,9 +644,30 @@ const pastEvents = events
       font-size: 9px;
     }
 
-    .event-meta span {
+    .event-meta p > span {
       width: 48px;
       font-size: 7px;
+    }
+
+    .venue-row {
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .map-link {
+      min-width: 66px;
+      height: 28px;
+
+      gap: 5px;
+
+      padding: 0 9px;
+
+      font-size: 8px;
+    }
+
+    .map-link img {
+      width: 14px;
+      height: 14px;
     }
 
     .official-link {
