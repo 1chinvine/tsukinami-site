@@ -14,6 +14,8 @@ const {
 
 const siteUrl = 'https://tsukinami-site.vercel.app';
 const ogImage = `${siteUrl}/images/hero/hero-group.jpg`;
+
+const ogTitle = 'ツキナミ非公式HP';
 ---
 
 <!doctype html>
@@ -23,32 +25,87 @@ const ogImage = `${siteUrl}/images/hero/hero-group.jpg`;
     <meta name="viewport" content="width=device-width" />
 
     <title>{title}</title>
-    <link rel="icon" type="image/png" href="/favicon.png" />
+
+    <link
+      rel="icon"
+      type="image/png"
+      href="/favicon.png"
+    />
 
     <meta
       name="description"
       content={description}
     />
 
-    <!-- OGP -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:url" content={Astro.url.href} />
-    <meta property="og:image" content={ogImage} />
-    <meta property="og:site_name" content="ツキナミ 非公式ファンサイト" />
-    <meta property="og:locale" content="ja_JP" />
+    <!-- =========================
+         OGP
+    ========================= -->
 
-    <!-- X / Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={ogImage} />
+    <meta
+      property="og:type"
+      content="website"
+    />
+
+    <meta
+      property="og:title"
+      content={ogTitle}
+    />
+
+    <meta
+      property="og:description"
+      content={description}
+    />
+
+    <meta
+      property="og:url"
+      content={Astro.url.href}
+    />
+
+    <meta
+      property="og:image"
+      content={ogImage}
+    />
+
+    <meta
+      property="og:site_name"
+      content="ツキナミ非公式HP"
+    />
+
+    <meta
+      property="og:locale"
+      content="ja_JP"
+    />
+
+    <!-- =========================
+         X / Twitter
+    ========================= -->
+
+    <meta
+      name="twitter:card"
+      content="summary_large_image"
+    />
+
+    <meta
+      name="twitter:title"
+      content={ogTitle}
+    />
+
+    <meta
+      name="twitter:description"
+      content={description}
+    />
+
+    <meta
+      name="twitter:image"
+      content={ogImage}
+    />
   </head>
 
   <body>
     <Header />
+
     <slot />
+
     <Footer />
   </body>
 </html>
