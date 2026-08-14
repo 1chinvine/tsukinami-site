@@ -1,0 +1,18 @@
+{
+  "name": "ツキナミ非公式HP",
+  "short_name": "ツキナミ",
+  "description": "ツキナミの非公式ファンサイト",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#111a38",
+"theme_color": "#111a38",
+  "icons": [
+    {
+      "src": "/images/tsukinami-app-icon.jpg",
+      "sizes": "1200x1200",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}
