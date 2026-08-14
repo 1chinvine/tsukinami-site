@@ -22,9 +22,17 @@ const ogTitle = 'ツキナミ非公式HP';
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    />
 
     <title>{title}</title>
+
+    <!-- =========================
+         FAVICON
+    ========================= -->
 
     <link
       rel="icon"
@@ -32,9 +40,51 @@ const ogTitle = 'ツキナミ非公式HP';
       href="/favicon.png"
     />
 
+    <!-- =========================
+         BASIC
+    ========================= -->
+
     <meta
       name="description"
       content={description}
+    />
+
+    <!-- =========================
+         PWA
+    ========================= -->
+
+    <link
+      rel="manifest"
+      href="/manifest.webmanifest"
+    />
+
+    <meta
+      name="theme-color"
+      content="#111a38"
+    />
+
+    <!-- =========================
+         iPhone / iPad
+    ========================= -->
+
+    <link
+      rel="apple-touch-icon"
+      href="/images/tsukinami-app-icon.png"
+    />
+
+    <meta
+      name="apple-mobile-web-app-capable"
+      content="yes"
+    />
+
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="default"
+    />
+
+    <meta
+      name="apple-mobile-web-app-title"
+      content="ツキナミ"
     />
 
     <!-- =========================

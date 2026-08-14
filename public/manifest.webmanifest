@@ -9,7 +9,7 @@
 "theme_color": "#111a38",
   "icons": [
     {
-      "src": "/images/tsukinami-app-icon.jpg",
+      "src": "/images/tsukinami-app-icon.png",
       "sizes": "1200x1200",
       "type": "image/jpeg",
       "purpose": "any"
