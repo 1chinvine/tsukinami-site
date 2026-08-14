@@ -1440,12 +1440,24 @@ const [
   ========================= */
 
   .schedule-filter {
+    position: sticky;
+
+    top: 76px;
+
+    z-index: 20;
+
     display: flex;
     flex-wrap: wrap;
 
     gap: 10px;
 
     margin-bottom: 40px;
+
+    padding:
+      12px
+      0;
+
+    background: var(--bg);
   }
 
   .filter-button {
@@ -1509,14 +1521,16 @@ const [
   ========================= */
 
   .calendar-area {
+    position: sticky;
+
+    top: 142px;
+
+    align-self: start;
+
     min-width: 0;
   }
 
   .calendar {
-    position: sticky;
-
-    top: 100px;
-
     width: 100%;
   }
 
@@ -2168,6 +2182,18 @@ const [
         70px;
     }
 
+    .schedule-filter {
+      position: static;
+
+      top: auto;
+
+      z-index: auto;
+
+      padding: 0;
+
+      background: transparent;
+    }
+
     .schedule-layout {
       display: flex;
 
@@ -2177,6 +2203,12 @@ const [
     }
 
     .calendar-area {
+      position: static;
+
+      top: auto;
+
+      align-self: auto;
+
       order: 1;
 
       width: 100%;
