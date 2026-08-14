@@ -1,38 +1,287 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getTsukinamiEvents } from '../lib/notion';
+import {
+  getTsukinamiEvents,
+  type TsukinamiEvent,
+} from '../lib/notion';
 import { createGoogleCalendarUrl } from '../lib/calendar';
+import {
+  getEventMeta,
+  type EventType,
+} from '../data/eventMeta';
 
 const events = await getTsukinamiEvents();
 
-/*
-  現在の日付を日本時間（Asia/Tokyo）で
-  YYYY-MM-DD形式にする
-*/
-const getTodayJST = () => {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Asia/Tokyo',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).formatToParts(new Date());
+/* =========================
+   SCHEDULE TYPE
+========================= */
 
-  const year = parts.find((part) => part.type === 'year')?.value;
-  const month = parts.find((part) => part.type === 'month')?.value;
-  const day = parts.find((part) => part.type === 'day')?.value;
+type ScheduleType =
+  | EventType
+  | 'TICKET'
+  | 'UNCLASSIFIED';
+
+type ScheduleItem = {
+  id: string;
+
+  date: string;
+  type: ScheduleType;
+
+  title: string;
+
+  venue?: string;
+  time?: string;
+
+  url?: string;
+
+  ticketStart?: string;
+  ticketTime?: string;
+
+  isTicket: boolean;
+
+  sourceEvent?: TsukinamiEvent;
+};
+
+/* =========================
+   TODAY / JST
+========================= */
+
+const getTodayJST = () => {
+  const parts = new Intl.DateTimeFormat(
+    'en-US',
+    {
+      timeZone: 'Asia/Tokyo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }
+  ).formatToParts(new Date());
+
+  const year =
+    parts.find(
+      (part) => part.type === 'year'
+    )?.value;
+
+  const month =
+    parts.find(
+      (part) => part.type === 'month'
+    )?.value;
+
+  const day =
+    parts.find(
+      (part) => part.type === 'day'
+    )?.value;
 
   return `${year}-${month}-${day}`;
 };
 
 const today = getTodayJST();
 
-/*
-  表示用の日付
-  YYYY-MM-DDを直接分解することで
-  実行環境のタイムゾーンによる日付ズレを防ぐ
-*/
-const formatDate = (dateString: string) => {
-  const [year, month, day] = dateString
+/* =========================
+   TICKET DATE / TIME
+========================= */
+
+const getTicketDateTimeJST = (
+  ticketStart: string
+) => {
+  const parts =
+    new Intl.DateTimeFormat(
+      'en-US',
+      {
+        timeZone: 'Asia/Tokyo',
+
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+
+        hour: '2-digit',
+        minute: '2-digit',
+
+        hour12: false,
+      }
+    ).formatToParts(
+      new Date(ticketStart)
+    );
+
+  const year =
+    parts.find(
+      (part) => part.type === 'year'
+    )?.value ?? '';
+
+  const month =
+    parts.find(
+      (part) => part.type === 'month'
+    )?.value ?? '';
+
+  const day =
+    parts.find(
+      (part) => part.type === 'day'
+    )?.value ?? '';
+
+  const hour =
+    parts.find(
+      (part) => part.type === 'hour'
+    )?.value ?? '';
+
+  const minute =
+    parts.find(
+      (part) => part.type === 'minute'
+    )?.value ?? '';
+
+  return {
+    date: `${year}-${month}-${day}`,
+    time: `${hour}:${minute}`,
+  };
+};
+
+/* =========================
+   NOTION EVENTS
+   +
+   EVENT META
+   ↓
+   DISPLAY SCHEDULE
+========================= */
+
+const scheduleItems: ScheduleItem[] =
+  events
+    .flatMap(
+      (
+        event,
+        index
+      ): ScheduleItem[] => {
+
+        /*
+          照合はNotion上の
+          元タイトルで行う
+        */
+        const meta =
+          getEventMeta(
+            event.date,
+            event.title
+          );
+
+        /*
+          サイト上の表示タイトル
+        */
+        const displayTitle =
+          meta.displayTitle ??
+          event.title;
+
+        /*
+          通常イベント
+        */
+        const items: ScheduleItem[] = [
+          {
+            id: `event-${index}`,
+
+            date:
+              event.date,
+
+            type:
+              meta.type ??
+              'UNCLASSIFIED',
+
+            title:
+              displayTitle,
+
+            venue:
+              event.venue,
+
+            time:
+              event.time,
+
+            url:
+              event.url,
+
+            isTicket:
+              false,
+
+            sourceEvent:
+              event,
+          },
+        ];
+
+        /*
+          チケ発を独立した予定として追加
+        */
+        if (meta.ticketStart) {
+          const ticketDateTime =
+            getTicketDateTimeJST(
+              meta.ticketStart
+            );
+
+          items.push({
+            id:
+              `ticket-${index}`,
+
+            date:
+              ticketDateTime.date,
+
+            type:
+              'TICKET',
+
+            title:
+              displayTitle,
+
+            ticketStart:
+              meta.ticketStart,
+
+            ticketTime:
+              ticketDateTime.time,
+
+            url:
+              meta.ticketUrl ||
+              event.url,
+
+            isTicket:
+              true,
+          });
+        }
+
+        return items;
+      }
+    )
+    .filter(
+      (item) =>
+        Boolean(item.date)
+    )
+    .sort(
+      (a, b) =>
+        a.date.localeCompare(
+          b.date
+        )
+    );
+
+/* =========================
+   UPCOMING / PAST
+========================= */
+
+const upcomingItems =
+  scheduleItems.filter(
+    (item) =>
+      item.date >= today
+  );
+
+const pastItems =
+  scheduleItems
+    .filter(
+      (item) =>
+        item.date < today
+    )
+    .reverse();
+
+/* =========================
+   DATE FORMAT
+========================= */
+
+const formatDate = (
+  dateString: string
+) => {
+  const [
+    year,
+    month,
+    day,
+  ] = dateString
     .split('-')
     .map(Number);
 
@@ -46,347 +295,1588 @@ const formatDate = (dateString: string) => {
     'SAT',
   ];
 
-  const weekdayIndex = new Date(
-    Date.UTC(year, month - 1, day)
-  ).getUTCDay();
+  const weekdayIndex =
+    new Date(
+      Date.UTC(
+        year,
+        month - 1,
+        day
+      )
+    ).getUTCDay();
 
   return {
-    date: `${String(month).padStart(2, '0')}.${String(day).padStart(2, '0')}`,
-    weekday: weekdays[weekdayIndex],
+    date:
+      `${String(month).padStart(2, '0')}.` +
+      `${String(day).padStart(2, '0')}`,
+
+    weekday:
+      weekdays[
+        weekdayIndex
+      ],
   };
 };
 
-/*
-  Google Maps検索URL
-*/
-const createGoogleMapsUrl = (venue: string) => {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue)}`;
+/* =========================
+   TYPE LABEL
+========================= */
+
+const getTypeLabel = (
+  type: ScheduleType
+) => {
+  switch (type) {
+    case 'LIVE':
+      return 'ライブ';
+
+    case 'EVENT':
+      return 'イベント';
+
+    case 'TICKET':
+      return 'チケ発';
+
+    default:
+      return null;
+  }
 };
 
-/*
-  今日以降
-*/
-const upcomingEvents = events
-  .filter((event) => {
-    if (!event.date) return false;
+/* =========================
+   GOOGLE MAPS
+========================= */
 
-    return event.date >= today;
-  })
-  .sort((a, b) => a.date.localeCompare(b.date));
+const createGoogleMapsUrl = (
+  venue: string
+) => {
+  return (
+    'https://www.google.com/maps/search/?api=1&query=' +
+    encodeURIComponent(
+      venue
+    )
+  );
+};
 
-/*
-  今日より前
-*/
-const pastEvents = events
-  .filter((event) => {
-    if (!event.date) return false;
+/* =========================
+   GOOGLE CALENDAR
+========================= */
 
-    return event.date < today;
-  })
-  .sort((a, b) => b.date.localeCompare(a.date));
+const formatGoogleDate = (
+  date: Date
+) => {
+  return date
+    .toISOString()
+    .replace(
+      /[-:]/g,
+      ''
+    )
+    .replace(
+      /\.\d{3}/,
+      ''
+    );
+};
+
+const createScheduleCalendarUrl = (
+  item: ScheduleItem
+) => {
+
+  /* =====================
+     TICKET
+  ===================== */
+
+  if (item.isTicket) {
+
+    if (!item.ticketStart) {
+      return null;
+    }
+
+    const startDate =
+      new Date(
+        item.ticketStart
+      );
+
+    const endDate =
+      new Date(
+        startDate.getTime() +
+        60 *
+          60 *
+          1000
+      );
+
+    const description = [
+      item.ticketTime
+        ? `チケット発売 ${item.ticketTime}`
+        : 'チケット発売',
+
+      '',
+
+      '※カレンダー上の終了時刻は便宜上、発売開始から1時間後に設定しています。',
+
+      item.url
+        ? `\nチケット情報：\n${item.url}`
+        : null,
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const params =
+      new URLSearchParams({
+        action:
+          'TEMPLATE',
+
+        text:
+          `【チケ発】${item.title}`,
+
+        dates:
+          `${formatGoogleDate(startDate)}` +
+          `/${formatGoogleDate(endDate)}`,
+
+        details:
+          description,
+      });
+
+    return (
+      'https://calendar.google.com/calendar/render?' +
+      params.toString()
+    );
+  }
+
+  /* =====================
+     EVENT / LIVE
+  ===================== */
+
+  if (!item.sourceEvent) {
+    return null;
+  }
+
+  return createGoogleCalendarUrl(
+    item.sourceEvent
+  );
+};
+
+/* =========================
+   CALENDAR DATA
+========================= */
+
+const calendarItems =
+  scheduleItems.map(
+    (item) => ({
+      date:
+        item.date,
+
+      type:
+        item.type,
+    })
+  );
+
+const firstCalendarDate =
+  upcomingItems[0]?.date ||
+  today;
+
+const [
+  initialYear,
+  initialMonth,
+] = firstCalendarDate
+  .split('-')
+  .map(Number);
 ---
 
 <BaseLayout title="SCHEDULE | ツキナミ">
+
   <main class="schedule-page">
 
     <h1>SCHEDULE</h1>
 
     <!-- =========================
-         UPCOMING
+         FILTER
     ========================== -->
 
-    <section class="schedule-section">
+    <div class="schedule-filter">
 
-      <div class="section-heading">
-        <p>UPCOMING</p>
+      <button
+        class="filter-button active"
+        type="button"
+        data-filter="ALL"
+      >
+        ALL
+      </button>
 
-        <span>
-          {upcomingEvents.length} EVENTS
-        </span>
-      </div>
+      <button
+        class="filter-button"
+        type="button"
+        data-filter="EVENT"
+      >
+        イベント
+      </button>
 
-      <div class="schedule-list">
-        {
-          upcomingEvents.map((event) => {
-            const formatted = formatDate(event.date);
-            const calendarUrl = createGoogleCalendarUrl(event);
-            const mapUrl = event.venue
-              ? createGoogleMapsUrl(event.venue)
-              : null;
+      <button
+        class="filter-button"
+        type="button"
+        data-filter="LIVE"
+      >
+        ライブ
+      </button>
 
-            return (
-              <article class="schedule-item">
+      <button
+        class="filter-button"
+        type="button"
+        data-filter="TICKET"
+      >
+        チケ発
+      </button>
 
-                <!-- DATE -->
+    </div>
 
-                <div class="date">
-                  <span class="date-main">
-                    {formatted.date}
-                  </span>
+    <!-- =========================
+         CALENDAR + LIST
+    ========================== -->
 
-                  <span class="date-weekday">
-                    {formatted.weekday}
-                  </span>
-                </div>
+    <div class="schedule-layout">
 
-                <!-- EVENT INFORMATION -->
+      <!-- =====================
+           CALENDAR
+      ====================== -->
 
-                <div class="event-info">
+      <aside class="calendar-area">
 
-                  <h2>
-                    {event.title}
-                  </h2>
+        <div class="calendar">
 
-                  <div class="event-meta">
+          <div class="calendar-header">
 
-                    {event.venue && (
-                      <div class="venue-row">
-                        <p>
-                          <span>VENUE</span>
-                          {event.venue}
-                        </p>
+            <button
+              class="month-button"
+              type="button"
+              id="prev-month"
+              aria-label="前の月"
+            >
+              ‹
+            </button>
 
-                        {mapUrl && (
+            <div class="calendar-month">
+
+              <strong
+                id="calendar-month-number"
+              >
+                {initialMonth}
+              </strong>
+
+              <div>
+                <span
+                  id="calendar-month-name"
+                ></span>
+
+                <small
+                  id="calendar-year"
+                >
+                  {initialYear}
+                </small>
+              </div>
+
+            </div>
+
+            <button
+              class="month-button"
+              type="button"
+              id="next-month"
+              aria-label="次の月"
+            >
+              ›
+            </button>
+
+          </div>
+
+          <div class="calendar-weekdays">
+            <span>SUN</span>
+            <span>MON</span>
+            <span>TUE</span>
+            <span>WED</span>
+            <span>THU</span>
+            <span>FRI</span>
+            <span>SAT</span>
+          </div>
+
+          <div
+            class="calendar-days"
+            id="calendar-days"
+          ></div>
+
+        </div>
+
+      </aside>
+
+      <!-- =====================
+           EVENT LIST
+      ====================== -->
+
+      <div class="schedule-content">
+
+        <!-- =====================
+             UPCOMING
+        ====================== -->
+
+        <section
+          class="schedule-section"
+          id="upcoming-section"
+        >
+
+          <div class="section-heading">
+
+            <p>UPCOMING</p>
+
+            <span
+              id="upcoming-count"
+            >
+              {upcomingItems.length} EVENTS
+            </span>
+
+          </div>
+
+          <div class="schedule-list">
+
+            {
+              upcomingItems.map(
+                (item) => {
+
+                  const formatted =
+                    formatDate(
+                      item.date
+                    );
+
+                  const calendarUrl =
+                    createScheduleCalendarUrl(
+                      item
+                    );
+
+                  const mapUrl =
+                    item.venue
+                      ? createGoogleMapsUrl(
+                          item.venue
+                        )
+                      : null;
+
+                  const typeLabel =
+                    getTypeLabel(
+                      item.type
+                    );
+
+                  return (
+                    <article
+                      id={item.id}
+                      class="schedule-item"
+                      data-type={item.type}
+                      data-date={item.date}
+                    >
+
+                      <div class="date">
+
+                        <span class="date-main">
+                          {formatted.date}
+                        </span>
+
+                        <span class="date-weekday">
+                          {formatted.weekday}
+                        </span>
+
+                      </div>
+
+                      <div class="event-info">
+
+                        {typeLabel && (
+                          <span
+                            class={`event-tag tag-${item.type.toLowerCase()}`}
+                          >
+                            {typeLabel}
+                          </span>
+                        )}
+
+                        <h2>
+                          {item.title}
+                        </h2>
+
+                        <div class="event-meta">
+
+                          {
+                            item.isTicket ? (
+
+                              item.ticketTime && (
+                                <p>
+                                  <span>
+                                    TIME
+                                  </span>
+
+                                  発売 {item.ticketTime}
+                                </p>
+                              )
+
+                            ) : (
+
+                              <>
+
+                                {item.venue && (
+                                  <div class="venue-row">
+
+                                    <p>
+                                      <span>
+                                        VENUE
+                                      </span>
+
+                                      {item.venue}
+                                    </p>
+
+                                    {mapUrl && (
+                                      <a
+                                        class="map-link"
+                                        href={mapUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        title="Google Mapsで開く"
+                                        aria-label={`${item.venue}をGoogle Mapsで開く`}
+                                      >
+                                        <img
+                                          src="/images/icons/googlemaps.svg"
+                                          alt=""
+                                        />
+
+                                        <span>
+                                          MAP
+                                        </span>
+                                      </a>
+                                    )}
+
+                                  </div>
+                                )}
+
+                                {item.time && (
+                                  <p>
+                                    <span>
+                                      TIME
+                                    </span>
+
+                                    {item.time}
+                                  </p>
+                                )}
+
+                              </>
+
+                            )
+                          }
+
+                        </div>
+
+                        {item.url && (
                           <a
-                            class="map-link"
-                            href={mapUrl}
+                            class="official-link"
+                            href={item.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            aria-label={`${event.venue}をGoogle Mapsで開く`}
-                            title="Google Mapsで開く"
+                          >
+                            {
+                              item.isTicket
+                                ? 'チケット情報 →'
+                                : '公式情報 →'
+                            }
+                          </a>
+                        )}
+
+                      </div>
+
+                      {calendarUrl && (
+                        <div class="calendar-action">
+
+                          <a
+                            class="calendar-link"
+                            href={calendarUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Google Calendarに追加"
                           >
                             <img
-                              src="/images/icons/googlemaps.svg"
+                              src="/images/icons/googlecalendar.svg"
                               alt=""
                             />
 
                             <span>
-                              MAP
+                              追加
                             </span>
                           </a>
-                        )}
+
+                        </div>
+                      )}
+
+                    </article>
+                  );
+                }
+              )
+            }
+
+          </div>
+
+        </section>
+
+        <!-- =====================
+             PAST
+        ====================== -->
+
+        <section
+          class="schedule-section past"
+          id="past-section"
+        >
+
+          <div class="section-heading">
+
+            <p>PAST</p>
+
+            <span
+              id="past-count"
+            >
+              {pastItems.length} EVENTS
+            </span>
+
+          </div>
+
+          <div class="schedule-list">
+
+            {
+              pastItems.map(
+                (item) => {
+
+                  const formatted =
+                    formatDate(
+                      item.date
+                    );
+
+                  const typeLabel =
+                    getTypeLabel(
+                      item.type
+                    );
+
+                  return (
+                    <article
+                      id={item.id}
+                      class="schedule-item past-item"
+                      data-type={item.type}
+                      data-date={item.date}
+                    >
+
+                      <div class="date">
+
+                        <span class="date-main">
+                          {formatted.date}
+                        </span>
+
+                        <span class="date-weekday">
+                          {formatted.weekday}
+                        </span>
+
                       </div>
-                    )}
 
-                    {event.time && (
-                      <p>
-                        <span>TIME</span>
-                        {event.time}
-                      </p>
-                    )}
+                      <div class="event-info">
 
-                  </div>
+                        {typeLabel && (
+                          <span
+                            class={`event-tag tag-${item.type.toLowerCase()}`}
+                          >
+                            {typeLabel}
+                          </span>
+                        )}
 
-                  {event.url && (
-                    <a
-                      class="official-link"
-                      href={event.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      公式情報 →
-                    </a>
-                  )}
+                        <h2>
+                          {item.title}
+                        </h2>
 
-                </div>
+                        <div class="event-meta">
 
-                <!-- GOOGLE CALENDAR -->
+                          {
+                            item.isTicket ? (
 
-                {calendarUrl && (
-                  <div class="calendar-action">
+                              item.ticketTime && (
+                                <p>
+                                  <span>
+                                    TIME
+                                  </span>
 
-                    <a
-                      class="calendar-link"
-                      href={calendarUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`${event.title}をGoogleカレンダーに追加`}
-                      title="Google Calendarに追加"
-                    >
+                                  発売 {item.ticketTime}
+                                </p>
+                              )
 
-                      <img
-                        src="/images/icons/googlecalendar.svg"
-                        alt=""
-                      />
+                            ) : (
 
-                      <span>
-                        追加
-                      </span>
+                              <>
 
-                    </a>
+                                {item.venue && (
+                                  <p>
+                                    <span>
+                                      VENUE
+                                    </span>
 
-                  </div>
-                )}
+                                    {item.venue}
+                                  </p>
+                                )}
 
-              </article>
-            );
-          })
-        }
+                                {item.time && (
+                                  <p>
+                                    <span>
+                                      TIME
+                                    </span>
+
+                                    {item.time}
+                                  </p>
+                                )}
+
+                              </>
+
+                            )
+                          }
+
+                        </div>
+
+                        {item.url && (
+                          <a
+                            class="official-link"
+                            href={item.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {
+                              item.isTicket
+                                ? 'チケット情報 →'
+                                : '公式情報 →'
+                            }
+                          </a>
+                        )}
+
+                      </div>
+
+                    </article>
+                  );
+                }
+              )
+            }
+
+          </div>
+
+        </section>
+
       </div>
 
-    </section>
-
-    <!-- =========================
-         PAST
-    ========================== -->
-
-    <section class="schedule-section past">
-
-      <div class="section-heading">
-        <p>PAST</p>
-
-        <span>
-          {pastEvents.length} EVENTS
-        </span>
-      </div>
-
-      <div class="schedule-list">
-        {
-          pastEvents.map((event) => {
-            const formatted = formatDate(event.date);
-
-            return (
-              <article class="schedule-item past-item">
-
-                <!-- DATE -->
-
-                <div class="date">
-
-                  <span class="date-main">
-                    {formatted.date}
-                  </span>
-
-                  <span class="date-weekday">
-                    {formatted.weekday}
-                  </span>
-
-                </div>
-
-                <!-- EVENT INFORMATION -->
-
-                <div class="event-info">
-
-                  <h2>
-                    {event.title}
-                  </h2>
-
-                  <div class="event-meta">
-
-                    {event.venue && (
-                      <p>
-                        <span>VENUE</span>
-                        {event.venue}
-                      </p>
-                    )}
-
-                    {event.time && (
-                      <p>
-                        <span>TIME</span>
-                        {event.time}
-                      </p>
-                    )}
-
-                  </div>
-
-                  {event.url && (
-                    <a
-                      class="official-link"
-                      href={event.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      公式情報 →
-                    </a>
-                  )}
-
-                </div>
-
-              </article>
-            );
-          })
-        }
-      </div>
-
-    </section>
+    </div>
 
   </main>
+
 </BaseLayout>
 
+<script
+  define:vars={{
+    calendarItems,
+    initialYear,
+    initialMonth,
+    today,
+  }}
+>
+  const monthNames = [
+    'JANUARY',
+    'FEBRUARY',
+    'MARCH',
+    'APRIL',
+    'MAY',
+    'JUNE',
+    'JULY',
+    'AUGUST',
+    'SEPTEMBER',
+    'OCTOBER',
+    'NOVEMBER',
+    'DECEMBER',
+  ];
+
+  let displayYear =
+    initialYear;
+
+  let displayMonth =
+    initialMonth;
+
+  let currentFilter =
+    'ALL';
+
+  const daysContainer =
+    document.getElementById(
+      'calendar-days'
+    );
+
+  const monthNumber =
+    document.getElementById(
+      'calendar-month-number'
+    );
+
+  const monthName =
+    document.getElementById(
+      'calendar-month-name'
+    );
+
+  const yearLabel =
+    document.getElementById(
+      'calendar-year'
+    );
+
+  const filterButtons =
+    document.querySelectorAll(
+      '.filter-button'
+    );
+
+  const scheduleElements =
+    document.querySelectorAll(
+      '.schedule-item'
+    );
+
+  const upcomingSection =
+    document.getElementById(
+      'upcoming-section'
+    );
+
+  const pastSection =
+    document.getElementById(
+      'past-section'
+    );
+
+  const upcomingCount =
+    document.getElementById(
+      'upcoming-count'
+    );
+
+  const pastCount =
+    document.getElementById(
+      'past-count'
+    );
+
+  const pad = (number) =>
+    String(number).padStart(
+      2,
+      '0'
+    );
+
+  /* =========================
+     FILTERED CALENDAR DATA
+  ========================= */
+
+  const getFilteredCalendarItems =
+    () => {
+      return calendarItems.filter(
+        (item) =>
+          currentFilter ===
+            'ALL' ||
+          item.type ===
+            currentFilter
+      );
+    };
+
+  /* =========================
+     CALENDAR
+  ========================= */
+
+  const renderCalendar =
+    () => {
+
+      if (!daysContainer) {
+        return;
+      }
+
+      daysContainer.innerHTML =
+        '';
+
+      if (monthNumber) {
+        monthNumber.textContent =
+          displayMonth;
+      }
+
+      if (monthName) {
+        monthName.textContent =
+          monthNames[
+            displayMonth - 1
+          ];
+      }
+
+      if (yearLabel) {
+        yearLabel.textContent =
+          displayYear;
+      }
+
+      const firstDay =
+        new Date(
+          Date.UTC(
+            displayYear,
+            displayMonth - 1,
+            1
+          )
+        ).getUTCDay();
+
+      const daysInMonth =
+        new Date(
+          Date.UTC(
+            displayYear,
+            displayMonth,
+            0
+          )
+        ).getUTCDate();
+
+      const filteredItems =
+        getFilteredCalendarItems();
+
+      const activeDates =
+        new Set(
+          filteredItems.map(
+            (item) =>
+              item.date
+          )
+        );
+
+      /*
+        月初までの空白
+      */
+      for (
+        let i = 0;
+        i < firstDay;
+        i++
+      ) {
+        const blank =
+          document.createElement(
+            'span'
+          );
+
+        blank.className =
+          'calendar-day blank';
+
+        daysContainer.appendChild(
+          blank
+        );
+      }
+
+      /*
+        日付
+      */
+      for (
+        let day = 1;
+        day <= daysInMonth;
+        day++
+      ) {
+
+        const date =
+          `${displayYear}-` +
+          `${pad(displayMonth)}-` +
+          `${pad(day)}`;
+
+        const hasSchedule =
+          activeDates.has(
+            date
+          );
+
+        const isToday =
+          date === today;
+
+        const element =
+          document.createElement(
+            hasSchedule
+              ? 'button'
+              : 'span'
+          );
+
+        element.className =
+          'calendar-day';
+
+        element.textContent =
+          day;
+
+        /*
+          今日
+        */
+        if (isToday) {
+          element.classList.add(
+            'is-today'
+          );
+        }
+
+        /*
+          予定あり
+        */
+        if (hasSchedule) {
+
+          element.classList.add(
+            'has-schedule'
+          );
+
+          element.type =
+            'button';
+
+          element.setAttribute(
+            'aria-label',
+            isToday
+              ? `本日 ${date} の予定を見る`
+              : `${date}の予定を見る`
+          );
+
+          element.addEventListener(
+            'click',
+            () => {
+
+              const targets =
+                [
+                  ...scheduleElements,
+                ].filter(
+                  (item) =>
+                    !item.hidden &&
+                    item.dataset.date ===
+                      date
+                );
+
+              const target =
+                targets[0];
+
+              if (!target) {
+                return;
+              }
+
+              target.scrollIntoView({
+                behavior:
+                  'smooth',
+
+                block:
+                  'center',
+              });
+
+              target.classList.remove(
+                'schedule-highlight'
+              );
+
+              void target.offsetWidth;
+
+              target.classList.add(
+                'schedule-highlight'
+              );
+            }
+          );
+        }
+
+        daysContainer.appendChild(
+          element
+        );
+      }
+    };
+
+  /* =========================
+     FILTER
+  ========================= */
+
+  const updateSections =
+    () => {
+
+      let upcomingVisible =
+        0;
+
+      let pastVisible =
+        0;
+
+      scheduleElements.forEach(
+        (item) => {
+
+          const matches =
+            currentFilter ===
+              'ALL' ||
+            item.dataset.type ===
+              currentFilter;
+
+          item.hidden =
+            !matches;
+
+          if (!matches) {
+            return;
+          }
+
+          if (
+            item.closest(
+              '#upcoming-section'
+            )
+          ) {
+            upcomingVisible++;
+          }
+
+          if (
+            item.closest(
+              '#past-section'
+            )
+          ) {
+            pastVisible++;
+          }
+        }
+      );
+
+      if (upcomingCount) {
+        upcomingCount.textContent =
+          `${upcomingVisible} EVENTS`;
+      }
+
+      if (pastCount) {
+        pastCount.textContent =
+          `${pastVisible} EVENTS`;
+      }
+
+      if (upcomingSection) {
+        upcomingSection.hidden =
+          upcomingVisible === 0;
+      }
+
+      if (pastSection) {
+        pastSection.hidden =
+          pastVisible === 0;
+      }
+    };
+
+  filterButtons.forEach(
+    (button) => {
+
+      button.addEventListener(
+        'click',
+        () => {
+
+          currentFilter =
+            button.dataset
+              .filter ||
+            'ALL';
+
+          filterButtons.forEach(
+            (item) =>
+              item.classList.remove(
+                'active'
+              )
+          );
+
+          button.classList.add(
+            'active'
+          );
+
+          updateSections();
+
+          renderCalendar();
+        }
+      );
+    }
+  );
+
+  /* =========================
+     PREVIOUS MONTH
+  ========================= */
+
+  document
+    .getElementById(
+      'prev-month'
+    )
+    ?.addEventListener(
+      'click',
+      () => {
+
+        displayMonth--;
+
+        if (
+          displayMonth < 1
+        ) {
+          displayMonth = 12;
+          displayYear--;
+        }
+
+        renderCalendar();
+      }
+    );
+
+  /* =========================
+     NEXT MONTH
+  ========================= */
+
+  document
+    .getElementById(
+      'next-month'
+    )
+    ?.addEventListener(
+      'click',
+      () => {
+
+        displayMonth++;
+
+        if (
+          displayMonth > 12
+        ) {
+          displayMonth = 1;
+          displayYear++;
+        }
+
+        renderCalendar();
+      }
+    );
+
+  updateSections();
+
+  renderCalendar();
+</script>
+
 <style>
+  /* =========================
+     PAGE
+  ========================= */
+
   .schedule-page {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 72px 40px 84px;
+    padding: 68px 48px 90px;
   }
 
   h1 {
-    margin: 8px 0 48px;
-    font-size: clamp(36px, 4vw, 52px);
+    margin: 8px 0 34px;
+
+    font-size:
+      clamp(
+        36px,
+        4vw,
+        52px
+      );
+
     line-height: 1;
     font-weight: 600;
   }
 
+  /* =========================
+     FILTER
+  ========================= */
+
+  .schedule-filter {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin-bottom: 40px;
+  }
+
+  .filter-button {
+    padding: 8px 15px;
+
+    border:
+      1px solid
+      var(--line);
+
+    border-radius: 999px;
+
+    background: transparent;
+
+    color:
+      var(--muted);
+
+    font: inherit;
+    font-size: 10px;
+
+    letter-spacing: 0.08em;
+
+    cursor: pointer;
+
+    transition:
+      color 0.2s ease,
+      background 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .filter-button:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .filter-button.active {
+    color: var(--bg);
+
+    background: var(--accent);
+
+    border-color: var(--accent);
+  }
+
+  /* =========================
+     LAYOUT
+  ========================= */
+
+  .schedule-layout {
+    display: grid;
+
+    grid-template-columns:
+      300px
+      minmax(0, 1fr);
+
+    gap: 68px;
+
+    align-items: start;
+  }
+
+  /* =========================
+     CALENDAR
+  ========================= */
+
+  .calendar-area {
+    min-width: 0;
+  }
+
+  .calendar {
+    position: sticky;
+
+    top: 100px;
+
+    width: 100%;
+  }
+
+  .calendar-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 28px;
+  }
+
+  .calendar-month {
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+  }
+
+  .calendar-month strong {
+    color: var(--text);
+
+    font-size: 46px;
+
+    font-weight: 500;
+
+    line-height: 1;
+  }
+
+  .calendar-month div {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+  }
+
+  .calendar-month span {
+    color: var(--accent);
+
+    font-size: 11px;
+
+    letter-spacing: 0.12em;
+  }
+
+  .calendar-month small {
+    color: var(--muted);
+
+    font-size: 10px;
+
+    letter-spacing: 0.08em;
+  }
+
+  .month-button {
+    display: grid;
+
+    place-items: center;
+
+    width: 38px;
+    height: 38px;
+
+    padding: 0;
+
+    border:
+      1px solid
+      var(--line);
+
+    border-radius: 50%;
+
+    background: transparent;
+
+    color: var(--accent);
+
+    font-size: 22px;
+
+    cursor: pointer;
+
+    transition:
+      border-color 0.2s ease,
+      color 0.2s ease,
+      background 0.2s ease;
+  }
+
+  .month-button:hover {
+    color: var(--text);
+
+    border-color: var(--accent);
+
+    background:
+      rgba(
+        255,
+        255,
+        255,
+        0.04
+      );
+  }
+
+  .calendar-weekdays,
+  .calendar-days {
+    display: grid;
+
+    grid-template-columns:
+      repeat(
+        7,
+        1fr
+      );
+
+    gap: 7px;
+
+    text-align: center;
+  }
+
+  .calendar-weekdays {
+    margin-bottom: 10px;
+
+    color: var(--muted);
+
+    font-size: 9px;
+
+    letter-spacing: 0.05em;
+  }
+
+  :global(.calendar-day) {
+    display: grid;
+
+    place-items: center;
+
+    aspect-ratio:
+      1 / 1;
+
+    padding: 0;
+
+    border: 0;
+
+    border-radius: 50%;
+
+    background: transparent;
+
+    color: var(--muted);
+
+    font-size: 14px;
+  }
+
+  :global(.calendar-day.blank) {
+    pointer-events: none;
+  }
+
+  /* =========================
+     SCHEDULE DATE
+  ========================= */
+
+  :global(.calendar-day.has-schedule) {
+    background: var(--accent);
+
+    color: var(--bg);
+
+    cursor: pointer;
+
+    font-weight: 600;
+
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  :global(.calendar-day.has-schedule:hover) {
+    opacity: 0.82;
+
+    transform:
+      translateY(-1px);
+  }
+
+  /* =========================
+     TODAY
+  ========================= */
+
+  :global(.calendar-day.is-today) {
+    outline:
+      2px solid
+      rgba(
+        255,
+        255,
+        255,
+        0.9
+      );
+
+    outline-offset:
+      3px;
+  }
+
+  :global(.calendar-day.has-schedule.is-today) {
+    outline-color:
+      #ffffff;
+  }
+
+  /* =========================
+     CONTENT
+  ========================= */
+
+  .schedule-content {
+    min-width: 0;
+  }
+
   .schedule-section {
-    margin-bottom: 72px;
+    margin-bottom: 70px;
   }
 
   .section-heading {
     display: flex;
+
     align-items: baseline;
     justify-content: space-between;
+
     gap: 20px;
-    margin-bottom: 16px;
+
+    margin-bottom: 18px;
   }
 
   .section-heading p {
     margin: 0;
+
     font-size: 15px;
+
     letter-spacing: 0.1em;
   }
 
   .section-heading span {
     color: var(--muted);
+
     font-size: 9px;
+
     letter-spacing: 0.1em;
   }
 
   .schedule-list {
-    border-top: 1px solid var(--line);
+    border-top:
+      1px solid
+      var(--line);
   }
+
+  /* =========================
+     ITEM
+  ========================= */
 
   .schedule-item {
     display: grid;
-    grid-template-columns: 108px minmax(0, 1fr) auto;
+
+    grid-template-columns:
+      108px
+      minmax(0, 1fr)
+      auto;
+
     gap: 36px;
+
     align-items: center;
 
-    padding: 22px 0;
-    border-bottom: 1px solid var(--line);
+    padding: 24px 0;
+
+    border-bottom:
+      1px solid
+      var(--line);
+
+    scroll-margin-top: 120px;
+  }
+
+  .schedule-item[hidden] {
+    display: none;
   }
 
   .past-item {
-    grid-template-columns: 130px minmax(0, 1fr);
+    grid-template-columns:
+      108px
+      minmax(0, 1fr);
   }
+
+  /* =========================
+     DATE
+  ========================= */
 
   .date {
     display: flex;
+
     flex-direction: column;
+
     align-self: start;
   }
 
   .date-main {
     font-size: 28px;
+
     line-height: 1;
+
     font-weight: 500;
+
     letter-spacing: -0.02em;
   }
 
   .date-weekday {
     margin-top: 7px;
+
     color: var(--accent);
+
     font-size: 9px;
+
     letter-spacing: 0.16em;
   }
+
+  /* =========================
+     TAG
+  ========================= */
+
+  .event-tag {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 22px;
+
+    margin-bottom: 9px;
+
+    padding:
+      4px
+      10px;
+
+    border-radius: 4px;
+
+    color: #ffffff;
+
+    font-size: 9px;
+
+    line-height: 1;
+
+    font-weight: 600;
+
+    letter-spacing: 0.08em;
+  }
+
+  .tag-live {
+    background: #6f91c7;
+
+    color: #ffffff;
+  }
+
+  .tag-event {
+    background: #6f6aa8;
+
+    color: #ffffff;
+  }
+
+  .tag-ticket {
+    background: #a48b6a;
+
+    color: #ffffff;
+  }
+
+  /* =========================
+     EVENT INFO
+  ========================= */
 
   .event-info {
     min-width: 0;
@@ -394,8 +1884,11 @@ const pastEvents = events
 
   .event-info h2 {
     margin: 0;
+
     font-size: 18px;
-    line-height: 1.4;
+
+    line-height: 1.45;
+
     font-weight: 500;
   }
 
@@ -404,17 +1897,28 @@ const pastEvents = events
   }
 
   .event-meta p {
-    margin: 5px 0;
-    color: var(--muted);
+    margin:
+      5px
+      0;
+
+    color:
+      var(--muted);
+
     font-size: 11px;
+
     line-height: 1.5;
   }
 
   .event-meta p > span {
     display: inline-block;
+
     width: 56px;
-    color: var(--accent);
+
+    color:
+      var(--accent);
+
     font-size: 8px;
+
     letter-spacing: 0.1em;
   }
 
@@ -424,33 +1928,44 @@ const pastEvents = events
 
   .venue-row {
     display: flex;
+
     align-items: center;
+
     gap: 12px;
   }
 
   .venue-row p {
-    margin: 5px 0;
+    margin:
+      5px
+      0;
   }
 
   .map-link {
     display: inline-flex;
+
     align-items: center;
     justify-content: center;
+
     gap: 6px;
 
     min-width: 72px;
     height: 30px;
 
-    padding: 0 10px;
+    padding:
+      0
+      10px;
 
-    color: var(--text);
+    color:
+      var(--text);
 
     font-size: 9px;
-    letter-spacing: 0.08em;
 
     text-decoration: none;
 
-    border: 1px solid var(--line);
+    border:
+      1px solid
+      var(--line);
+
     border-radius: 16px;
 
     transition:
@@ -461,49 +1976,66 @@ const pastEvents = events
   }
 
   .map-link img {
-  display: block;
+    display: block;
 
-  width: 16px;
-  height: 16px;
+    width: 12px;
+    height: 12px;
 
-  object-fit: contain;
+    object-fit: contain;
 
-  /* 黒SVG → 白 */
-  filter: invert(1);
-}
+    filter: invert(1);
+  }
 
   .map-link span {
-    white-space: nowrap;
+    width: auto;
+
+    color: inherit;
+
+    font-size: inherit;
   }
 
   .map-link:hover {
     color: var(--accent);
+
     border-color: var(--accent);
 
-    background: rgba(255, 255, 255, 0.04);
+    background:
+      rgba(
+        255,
+        255,
+        255,
+        0.04
+      );
 
-    transform: translateY(-1px);
+    transform:
+      translateY(-1px);
   }
 
   /* =========================
-     OFFICIAL LINK
+     OFFICIAL
   ========================= */
 
   .official-link {
     display: inline-block;
 
     margin-top: 10px;
+
     padding-bottom: 3px;
 
     color: var(--text);
+
     font-size: 10px;
+
     text-decoration: none;
 
-    border-bottom: 1px solid var(--line);
+    border-bottom:
+      1px solid
+      var(--line);
   }
 
   .official-link:hover {
     color: var(--accent);
+
     border-color: var(--accent);
   }
 
@@ -513,7 +2045,9 @@ const pastEvents = events
 
   .calendar-action {
     display: flex;
+
     align-items: center;
+
     justify-content: flex-end;
 
     min-width: 102px;
@@ -521,23 +2055,29 @@ const pastEvents = events
 
   .calendar-link {
     display: inline-flex;
+
     align-items: center;
     justify-content: center;
+
     gap: 9px;
 
     min-width: 96px;
     height: 42px;
 
-    padding: 0 15px;
+    padding:
+      0
+      15px;
 
     color: var(--text);
 
     font-size: 11px;
-    letter-spacing: 0.08em;
 
     text-decoration: none;
 
-    border: 1px solid var(--line);
+    border:
+      1px solid
+      var(--line);
+
     border-radius: 22px;
 
     transition:
@@ -548,8 +2088,6 @@ const pastEvents = events
   }
 
   .calendar-link img {
-    display: block;
-
     width: 20px;
     height: 20px;
 
@@ -558,17 +2096,21 @@ const pastEvents = events
     filter: invert(1);
   }
 
-  .calendar-link span {
-    white-space: nowrap;
-  }
-
   .calendar-link:hover {
     color: var(--accent);
+
     border-color: var(--accent);
 
-    background: rgba(255, 255, 255, 0.04);
+    background:
+      rgba(
+        255,
+        255,
+        255,
+        0.04
+      );
 
-    transform: translateY(-1px);
+    transform:
+      translateY(-1px);
   }
 
   /* =========================
@@ -584,18 +2126,179 @@ const pastEvents = events
   }
 
   /* =========================
-     MOBILE
+     CLICK HIGHLIGHT
+  ========================= */
+
+  :global(.schedule-highlight) {
+    animation:
+      scheduleHighlight
+      1.2s
+      ease;
+  }
+
+  @keyframes scheduleHighlight {
+
+    0% {
+      background:
+        rgba(
+          185,
+          194,
+          255,
+          0.12
+        );
+    }
+
+    100% {
+      background:
+        transparent;
+    }
+
+  }
+
+  /* =========================
+     TABLET
+  ========================= */
+
+  @media (max-width: 900px) {
+
+    .schedule-page {
+      padding:
+        48px
+        34px
+        70px;
+    }
+
+    .schedule-layout {
+      display: flex;
+
+      flex-direction: column;
+
+      gap: 52px;
+    }
+
+    .calendar-area {
+      order: 1;
+
+      width: 100%;
+    }
+
+    .schedule-content {
+      order: 2;
+
+      width: 100%;
+    }
+
+    .calendar {
+      position: static;
+
+      width: 100%;
+
+      max-width: 460px;
+
+      margin: 0 auto;
+    }
+
+    .calendar-month strong {
+      font-size: 44px;
+    }
+
+    :global(.calendar-day) {
+      font-size: 14px;
+    }
+
+  }
+
+  /* =========================
+     SMARTPHONE
   ========================= */
 
   @media (max-width: 700px) {
+
     .schedule-page {
-      padding: 40px 20px 52px;
+      padding:
+        40px
+        20px
+        52px;
     }
 
     h1 {
-      margin: 6px 0 32px;
+      margin:
+        6px
+        0
+        26px;
+
       font-size: 32px;
     }
+
+    /* FILTER */
+
+    .schedule-filter {
+      gap: 7px;
+
+      margin-bottom: 30px;
+    }
+
+    .filter-button {
+      padding:
+        7px
+        11px;
+
+      font-size: 8px;
+    }
+
+    /* CALENDAR */
+
+    .schedule-layout {
+      gap: 42px;
+    }
+
+    .calendar {
+      max-width: 390px;
+    }
+
+    .calendar-header {
+      margin-bottom: 22px;
+    }
+
+    .calendar-month strong {
+      font-size: 38px;
+    }
+
+    .calendar-month span {
+      font-size: 9px;
+    }
+
+    .calendar-month small {
+      font-size: 9px;
+    }
+
+    .month-button {
+      width: 34px;
+      height: 34px;
+
+      font-size: 19px;
+    }
+
+    .calendar-weekdays,
+    .calendar-days {
+      gap: 6px;
+    }
+
+    .calendar-weekdays {
+      font-size: 8px;
+    }
+
+    :global(.calendar-day) {
+      font-size: 12px;
+    }
+
+    :global(.calendar-day.is-today) {
+      outline-width: 1.5px;
+
+      outline-offset: 2px;
+    }
+
+    /* LIST */
 
     .schedule-section {
       margin-bottom: 48px;
@@ -615,23 +2318,47 @@ const pastEvents = events
 
     .schedule-item,
     .past-item {
-      grid-template-columns: 1fr;
+      grid-template-columns:
+        1fr;
+
       gap: 8px;
 
-      padding: 16px 0;
+      padding:
+        18px
+        0;
     }
 
+    /* DATE */
+
     .date-main {
-      font-size: 20px;
+      font-size: 21px;
     }
 
     .date-weekday {
       margin-top: 5px;
+
       font-size: 8px;
     }
 
+    /* TAG */
+
+    .event-tag {
+      min-height: 18px;
+
+      margin-bottom: 7px;
+
+      padding:
+        3px
+        8px;
+
+      font-size: 7px;
+    }
+
+    /* EVENT */
+
     .event-info h2 {
       font-size: 14px;
+
       line-height: 1.4;
     }
 
@@ -640,40 +2367,53 @@ const pastEvents = events
     }
 
     .event-meta p {
-      margin: 3px 0;
+      margin:
+        3px
+        0;
+
       font-size: 9px;
     }
 
     .event-meta p > span {
       width: 48px;
+
       font-size: 7px;
     }
 
+    /* MAP */
+
     .venue-row {
       gap: 8px;
+
       flex-wrap: wrap;
     }
 
     .map-link {
       min-width: 66px;
+
       height: 28px;
 
-      gap: 5px;
-
-      padding: 0 9px;
+      padding:
+        0
+        9px;
 
       font-size: 8px;
     }
 
     .map-link img {
-      width: 14px;
-      height: 14px;
+      width: 11px;
+      height: 11px;
     }
+
+    /* OFFICIAL */
 
     .official-link {
       margin-top: 7px;
+
       font-size: 8px;
     }
+
+    /* GOOGLE CALENDAR */
 
     .calendar-action {
       min-width: 0;
@@ -685,11 +2425,12 @@ const pastEvents = events
 
     .calendar-link {
       min-width: 86px;
+
       height: 38px;
 
-      gap: 7px;
-
-      padding: 0 13px;
+      padding:
+        0
+        13px;
 
       font-size: 10px;
     }
@@ -698,5 +2439,6 @@ const pastEvents = events
       width: 18px;
       height: 18px;
     }
+
   }
 </style>

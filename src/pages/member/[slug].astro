@@ -62,22 +62,23 @@ const { member } = Astro.props;
         ========================= -->
 
         <dl>
+
+          <div>
+            <dt>MEMBER COLOR</dt>
+
+            <dd
+              class="member-color"
+              style={`color: ${member.colorCode};`}
+            >
+              {member.color || '---'}
+            </dd>
+          </div>
+
           <div>
             <dt>BIRTHDAY</dt>
 
             <dd>
               {member.birthday || '---'}
-            </dd>
-          </div>
-
-          <div>
-            <dt>COLOR</dt>
-
-            <dd
-              class="member-color"
-              style={`color: ${member.colorCode}`}
-            >
-              {member.color || '---'}
             </dd>
           </div>
 
@@ -88,6 +89,7 @@ const { member } = Astro.props;
               {member.catchphrase || '---'}
             </dd>
           </div>
+
         </dl>
 
         <!-- =========================
