@@ -481,48 +481,6 @@ const [
 
   <main class="schedule-page">
 
-    <h1>SCHEDULE</h1>
-
-    <!-- =========================
-         FILTER
-    ========================== -->
-
-    <div class="schedule-filter">
-
-      <button
-        class="filter-button active"
-        type="button"
-        data-filter="ALL"
-      >
-        ALL
-      </button>
-
-      <button
-        class="filter-button"
-        type="button"
-        data-filter="EVENT"
-      >
-        イベント
-      </button>
-
-      <button
-        class="filter-button"
-        type="button"
-        data-filter="LIVE"
-      >
-        ライブ
-      </button>
-
-      <button
-        class="filter-button"
-        type="button"
-        data-filter="TICKET"
-      >
-        チケ発
-      </button>
-
-    </div>
-
     <!-- =========================
          CALENDAR + LIST
     ========================== -->
@@ -530,10 +488,52 @@ const [
     <div class="schedule-layout">
 
       <!-- =====================
-           CALENDAR
+           TITLE + FILTER + CALENDAR
       ====================== -->
 
       <aside class="calendar-area">
+
+        <h1>SCHEDULE</h1>
+
+        <!-- =====================
+             FILTER
+        ====================== -->
+
+        <div class="schedule-filter">
+
+          <button
+            class="filter-button active"
+            type="button"
+            data-filter="ALL"
+          >
+            ALL
+          </button>
+
+          <button
+            class="filter-button"
+            type="button"
+            data-filter="EVENT"
+          >
+            イベント
+          </button>
+
+          <button
+            class="filter-button"
+            type="button"
+            data-filter="LIVE"
+          >
+            ライブ
+          </button>
+
+          <button
+            class="filter-button"
+            type="button"
+            data-filter="TICKET"
+          >
+            チケ発
+          </button>
+
+        </div>
 
         <div class="calendar">
 
@@ -1234,7 +1234,7 @@ const [
                   'smooth',
 
                 block:
-                  'center',
+                  'start',
               });
 
               target.classList.remove(
@@ -1440,24 +1440,12 @@ const [
   ========================= */
 
   .schedule-filter {
-    position: sticky;
-
-    top: 76px;
-
-    z-index: 20;
-
     display: flex;
     flex-wrap: wrap;
 
     gap: 10px;
 
-    margin-bottom: 40px;
-
-    padding:
-      12px
-      0;
-
-    background: var(--bg);
+    margin-bottom: 34px;
   }
 
   .filter-button {
@@ -1523,7 +1511,7 @@ const [
   .calendar-area {
     position: sticky;
 
-    top: 142px;
+    top: 100px;
 
     align-self: start;
 
@@ -2180,18 +2168,6 @@ const [
         48px
         34px
         70px;
-    }
-
-    .schedule-filter {
-      position: static;
-
-      top: auto;
-
-      z-index: auto;
-
-      padding: 0;
-
-      background: transparent;
     }
 
     .schedule-layout {
