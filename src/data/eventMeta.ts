@@ -63,6 +63,13 @@ export const eventMeta: Record<string, EventMeta> = {
     type: 'EVENT',
   },
 
+  '2026-09-10|BEEEEM FES Vol.9': {
+    type: 'LIVE',
+    displayTitle: 'BEEEEM FES Vol.9',
+    ticketStart: '2026-08-15T20:00:00+09:00',
+    ticketUrl: 'https://t.pia.jp/pia/ticketInformation.do?eventCd=2631890&rlsCd=&lotRlsCd=26591',
+  },
+
   '2026-09-15|BEEEEM FES Vol.10 -New Generation-': {
     type: 'LIVE',
     ticketStart: '2026-08-12T20:00:00+09:00',
