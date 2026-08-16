@@ -36,6 +36,7 @@ type ScheduleItem = {
 
   ticketStart?: string;
   ticketTime?: string;
+  ticketUrl?: string;
 
   isTicket: boolean;
 
@@ -193,6 +194,12 @@ const scheduleItems: ScheduleItem[] =
             url:
               event.url,
 
+            ticketStart:
+              meta.ticketStart,
+
+            ticketUrl:
+              meta.ticketUrl,
+
             isTicket:
               false,
 
@@ -228,6 +235,9 @@ const scheduleItems: ScheduleItem[] =
 
             ticketTime:
               ticketDateTime.time,
+
+            ticketUrl:
+              meta.ticketUrl,
 
             url:
               meta.ticketUrl ||
@@ -655,6 +665,15 @@ const [
                       item.type
                     );
 
+                  const hasTicketPurchase =
+                    !item.isTicket &&
+                    (
+                      item.type === 'LIVE' ||
+                      item.type === 'EVENT'
+                    ) &&
+                    Boolean(item.ticketStart) &&
+                    Boolean(item.ticketUrl);
+
                   return (
                     <article
                       id={item.id}
@@ -776,25 +795,48 @@ const [
 
                       </div>
 
-                      {calendarUrl && (
+                      {(hasTicketPurchase || calendarUrl) && (
                         <div class="calendar-action">
 
-                          <a
-                            class="calendar-link"
-                            href={calendarUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            title="Google Calendarに追加"
-                          >
-                            <img
-                              src="/images/icons/googlecalendar.svg"
-                              alt=""
-                            />
+                          {hasTicketPurchase && (
+                            <a
+                              class="ticket-link ticket-purchase"
+                              href={item.ticketUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title="チケットを購入"
+                              data-ticket-start={item.ticketStart}
+                              hidden
+                            >
+                              <img
+                                src="/images/icons/ticket.svg"
+                                alt=""
+                              />
 
-                            <span>
-                              追加
-                            </span>
-                          </a>
+                              <span>
+                                購入
+                              </span>
+                            </a>
+                          )}
+
+                          {calendarUrl && (
+                            <a
+                              class="calendar-link"
+                              href={calendarUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title="Google Calendarに追加"
+                            >
+                              <img
+                                src="/images/icons/googlecalendar.svg"
+                                alt=""
+                              />
+
+                              <span>
+                                追加
+                              </span>
+                            </a>
+                          )}
 
                         </div>
                       )}
@@ -1048,6 +1090,92 @@ const [
       2,
       '0'
     );
+
+  /* =========================
+     TICKET PURCHASE
+  ========================= */
+
+  const ticketPurchaseLinks =
+    document.querySelectorAll(
+      '.ticket-purchase'
+    );
+
+  const updateTicketPurchaseLinks =
+    () => {
+
+      const now =
+        Date.now();
+
+      let nextStartTime =
+        Infinity;
+
+      ticketPurchaseLinks.forEach(
+        (link) => {
+
+          const ticketStart =
+            link.dataset
+              .ticketStart;
+
+          if (!ticketStart) {
+            link.hidden = true;
+            return;
+          }
+
+          const startTime =
+            new Date(
+              ticketStart
+            ).getTime();
+
+          if (
+            Number.isNaN(
+              startTime
+            )
+          ) {
+            link.hidden = true;
+            return;
+          }
+
+          const isOnSale =
+            now >= startTime;
+
+          link.hidden =
+            !isOnSale;
+
+          if (
+            !isOnSale &&
+            startTime < nextStartTime
+          ) {
+            nextStartTime =
+              startTime;
+          }
+        }
+      );
+
+      if (
+        Number.isFinite(
+          nextStartTime
+        )
+      ) {
+        const maxDelay =
+          2147483000;
+
+        const delay =
+          Math.min(
+            Math.max(
+              nextStartTime -
+                now +
+                100,
+              100
+            ),
+            maxDelay
+          );
+
+        window.setTimeout(
+          updateTicketPurchaseLinks,
+          delay
+        );
+      }
+    };
 
   /* =========================
      FILTERED CALENDAR DATA
@@ -1404,6 +1532,8 @@ const [
         renderCalendar();
       }
     );
+
+  updateTicketPurchaseLinks();
 
   updateSections();
 
@@ -2048,14 +2178,19 @@ const [
   .calendar-action {
     display: flex;
 
-    align-items: center;
+    flex-direction: column;
 
-    justify-content: flex-end;
+    align-items: flex-end;
+
+    justify-content: center;
+
+    gap: 8px;
 
     min-width: 102px;
   }
 
-  .calendar-link {
+  .calendar-link,
+  .ticket-link {
     display: inline-flex;
 
     align-items: center;
@@ -2089,7 +2224,8 @@ const [
       transform 0.2s ease;
   }
 
-  .calendar-link img {
+  .calendar-link img,
+  .ticket-link img {
     width: 20px;
     height: 20px;
 
@@ -2098,7 +2234,8 @@ const [
     filter: invert(1);
   }
 
-  .calendar-link:hover {
+  .calendar-link:hover,
+  .ticket-link:hover {
     color: var(--accent);
 
     border-color: var(--accent);
@@ -2113,6 +2250,10 @@ const [
 
     transform:
       translateY(-1px);
+  }
+
+  .ticket-purchase[hidden] {
+    display: none;
   }
 
   /* =========================
@@ -2428,10 +2569,19 @@ const [
 
       margin-top: 5px;
 
+      flex-direction: row;
+
+      flex-wrap: wrap;
+
+      align-items: center;
+
       justify-content: flex-end;
+
+      gap: 8px;
     }
 
-    .calendar-link {
+    .calendar-link,
+    .ticket-link {
       min-width: 86px;
 
       height: 38px;
@@ -2443,7 +2593,8 @@ const [
       font-size: 10px;
     }
 
-    .calendar-link img {
+    .calendar-link img,
+    .ticket-link img {
       width: 18px;
       height: 18px;
     }
