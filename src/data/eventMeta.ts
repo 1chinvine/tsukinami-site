@@ -75,7 +75,29 @@ export const eventMeta: Record<string, EventMeta> = {
     ticketStart: '2026-08-12T20:00:00+09:00',
     ticketUrl: 'https://t.pia.jp/pia/ticketInformation.do?eventCd=2631212&rlsCd=&lotRlsCd=21192',
   },
+
+  '2026-08-29|ツキナミ フリーライブ': {
+    type: 'LIVE',
+  },
+
+'2026-08-30|ツキナミ フリーライブ': {
+    type: 'LIVE',
+  },
+
+'2026-09-19|感情遊泳': {
+    type: 'LIVE',
+    ticketStart: '2026-08-21T22:00:00+09:00',
+    ticketUrl: 'https://ticketvillage.jp/events/13859',
+
+},
+
+
+
+
+
+
 };
+
 
 /*
   Notionのイベント情報から

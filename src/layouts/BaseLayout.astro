@@ -8,17 +8,85 @@ interface Props {
 }
 
 const {
-  title = 'ツキナミ',
-  description = 'ツキナミのライブ、スケジュール、メンバー情報をまとめた非公式ファンサイト。',
+  title = 'ツキナミ｜6人組アイドルグループ',
+  description = '「ありふれた毎日を特別なものに。」カンナギマロが総合プロデュースを手掛ける6人組アイドルグループ「ツキナミ」の非公式ファンサイト。メンバー、ライブ・イベントスケジュール、楽曲、最新情報を掲載しています。',
 } = Astro.props;
 
-const siteUrl = 'https://tsukinami-site.vercel.app';
-const ogImage = `${siteUrl}/images/hero/hero-group.jpg`;
+/* =========================
+   SITE
+========================= */
 
-const ogTitle = 'ツキナミ非公式HP';
+const siteName = 'ツキナミ非公式HP';
+
+const siteUrl =
+  Astro.site?.toString().replace(/\/$/, '') ??
+  'https://tsukinami-site.vercel.app';
+
+const canonicalUrl = new URL(
+  Astro.url.pathname,
+  siteUrl
+).toString();
+
+const ogImage =
+  `${siteUrl}/images/hero/hero-group.jpg`;
+
+/* =========================
+   STRUCTURED DATA
+========================= */
+
+/*
+  このWebサイトそのもの。
+  非公式ファンサイトであることを明示。
+*/
+const websiteStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': `${siteUrl}/#website`,
+  url: `${siteUrl}/`,
+  name: siteName,
+  description:
+    '6人組アイドルグループ「ツキナミ」のメンバー、ライブ・イベント、楽曲、最新情報をまとめた非公式ファンサイト。',
+  inLanguage: 'ja',
+};
+
+/*
+  このサイトが扱っている対象としての
+  アイドルグループ「ツキナミ」。
+
+  WebSiteとは別の実体として定義する。
+*/
+const tsukinamiStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'MusicGroup',
+  '@id': `${siteUrl}/#tsukinami`,
+  name: 'ツキナミ',
+  description:
+    'カンナギマロが総合プロデュースを手掛ける6人組アイドルグループ。',
+  genre: 'アイドル',
+};
+
+/*
+  このサイトとツキナミの関係。
+*/
+const webPageStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  '@id': `${canonicalUrl}#webpage`,
+  url: canonicalUrl,
+  name: title,
+  description,
+  inLanguage: 'ja',
+  isPartOf: {
+    '@id': `${siteUrl}/#website`,
+  },
+  about: {
+    '@id': `${siteUrl}/#tsukinami`,
+  },
+};
 ---
 
 <!doctype html>
+
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
@@ -28,7 +96,25 @@ const ogTitle = 'ツキナミ非公式HP';
       content="width=device-width, initial-scale=1"
     />
 
+    <!-- =========================
+         TITLE
+    ========================= -->
+
     <title>{title}</title>
+
+    <!-- =========================
+         BASIC SEO
+    ========================= -->
+
+    <meta
+      name="description"
+      content={description}
+    />
+
+    <link
+      rel="canonical"
+      href={canonicalUrl}
+    />
 
     <!-- =========================
          FAVICON
@@ -38,15 +124,6 @@ const ogTitle = 'ツキナミ非公式HP';
       rel="icon"
       type="image/png"
       href="/favicon.png"
-    />
-
-    <!-- =========================
-         BASIC
-    ========================= -->
-
-    <meta
-      name="description"
-      content={description}
     />
 
     <!-- =========================
@@ -98,7 +175,7 @@ const ogTitle = 'ツキナミ非公式HP';
 
     <meta
       property="og:title"
-      content={ogTitle}
+      content={title}
     />
 
     <meta
@@ -108,7 +185,7 @@ const ogTitle = 'ツキナミ非公式HP';
 
     <meta
       property="og:url"
-      content={Astro.url.href}
+      content={canonicalUrl}
     />
 
     <meta
@@ -118,7 +195,7 @@ const ogTitle = 'ツキナミ非公式HP';
 
     <meta
       property="og:site_name"
-      content="ツキナミ非公式HP"
+      content={siteName}
     />
 
     <meta
@@ -137,7 +214,7 @@ const ogTitle = 'ツキナミ非公式HP';
 
     <meta
       name="twitter:title"
-      content={ogTitle}
+      content={title}
     />
 
     <meta
@@ -148,6 +225,31 @@ const ogTitle = 'ツキナミ非公式HP';
     <meta
       name="twitter:image"
       content={ogImage}
+    />
+
+    <!-- =========================
+         STRUCTURED DATA
+    ========================= -->
+
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(
+        websiteStructuredData
+      )}
+    />
+
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(
+        tsukinamiStructuredData
+      )}
+    />
+
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(
+        webPageStructuredData
+      )}
     />
   </head>
 

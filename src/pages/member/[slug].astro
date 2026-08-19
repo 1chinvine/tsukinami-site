@@ -15,9 +15,27 @@ export function getStaticPaths() {
 }
 
 const { member } = Astro.props;
+
+/* =========================
+   SEO
+========================= */
+
+const memberRole =
+  member.role?.trim()
+    ? member.role
+    : 'メンバー';
+
+const pageTitle =
+  `${member.name}｜ツキナミ メンバープロフィール`;
+
+const pageDescription =
+  `6人組アイドルグループ「ツキナミ」の${memberRole}、${member.name}のプロフィール。メンバーカラー、誕生日、キャッチフレーズ、SNS情報を掲載しています。`;
 ---
 
-<BaseLayout title={`${member.name} | ツキナミ`}>
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+>
   <main class="profile">
 
     <a class="back" href="/member">
@@ -33,7 +51,7 @@ const { member } = Astro.props;
       <div class="profile-image">
         <img
           src={member.image}
-          alt={member.name}
+          alt={`ツキナミ ${member.name}`}
         />
       </div>
 

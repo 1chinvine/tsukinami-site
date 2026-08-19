@@ -2,45 +2,91 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="ABOUT | ツキナミ">
+<BaseLayout
+  title="ツキナミとは｜6人組アイドルグループ・プロフィール"
+  description="6人組アイドルグループ「ツキナミ」のグループ紹介。コンセプト、音楽・ライブ活動、プロデューサー、デビュー情報を掲載しています。"
+>
   <main class="about-page">
+
+    <!-- =========================
+         PAGE TITLE
+    ========================= -->
 
     <h1>ABOUT</h1>
 
+    <!-- =========================
+         ABOUT
+    ========================= -->
+
     <div class="about-grid">
 
-      <!-- GROUP PHOTO -->
+      <!-- =========================
+           GROUP PHOTO
+      ========================= -->
+
       <div class="about-image">
         <img
           src="/images/hero/hero-group.jpg"
-          alt="ツキナミ"
+          alt="6人組アイドルグループ ツキナミ"
         />
       </div>
 
-      <!-- INFORMATION -->
+      <!-- =========================
+           INFORMATION
+      ========================= -->
+
       <div class="about-content">
 
         <p class="eyebrow">
           ABOUT TSUKINAMI
         </p>
 
-        <!-- CATCH COPY -->
+        <!-- =========================
+             CATCH COPY
+        ========================= -->
+
         <h2>
           <span>「ありふれた毎日を</span>
           <span>特別なものに。」</span>
         </h2>
 
-        <!-- DECORATION -->
+        <!-- =========================
+             DECORATION
+        ========================= -->
+
         <div class="about-decoration">
           <span></span>
           <b>✦</b>
           <span></span>
         </div>
 
-        <!-- DESCRIPTION -->
+        <!-- =========================
+             DESCRIPTION
+        ========================= -->
+
         <div class="about-text">
-          <p>▽2026/8/7 duo MUSIC EXCHANGEにてDebut</p>
-          <p>▽カンナギマロプロデュース</p>
+
+          <p>
+            ツキナミは、メジャー・地下の両シーンを経験した元アイドル・カンナギマロが
+            総合プロデュースを手掛ける6人組アイドルグループ。
+          </p>
+
+          <p>
+            “平凡”を意味する「月並み」という言葉を再定義し、
+            日常の感情に寄り添いながら、音楽とライブを通じて
+            “特別な瞬間”へと変えていくことを目指して活動している。
+          </p>
+
+          <p>
+            ジャンルにとらわれない等身大の音楽と、
+            心を揺さぶるライブパフォーマンスを追求。
+          </p>
+
+          <p class="debut">
+            2026年8月7日、渋谷duo MUSIC EXCHANGEでの
+            Debut Live『Halo』にて本格始動。
+          </p>
+
         </div>
 
       </div>
@@ -62,14 +108,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     padding: 72px 40px 100px;
   }
 
-  h1 {
-    margin: 0 0 48px;
+  /* =========================
+     PAGE TITLE
+  ========================= */
 
-    font-size: clamp(40px, 4vw, 58px);
+  h1 {
+    margin: 8px 0 48px;
+
+    font-size: clamp(40px, 5vw, 64px);
     line-height: 1;
     font-weight: 600;
   }
-
 
   /* =========================
      GRID
@@ -86,7 +135,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     align-items: center;
   }
-
 
   /* =========================
      IMAGE
@@ -112,7 +160,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     object-position: center;
   }
 
-
   /* =========================
      CONTENT
   ========================= */
@@ -129,7 +176,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     font-size: 11px;
     letter-spacing: 0.2em;
   }
-
 
   /* =========================
      CATCH COPY
@@ -151,7 +197,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .about-content h2 span {
     display: inline;
   }
-
 
   /* =========================
      DECORATION
@@ -185,7 +230,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     font-weight: 400;
   }
 
-
   /* =========================
      TEXT
   ========================= */
@@ -194,7 +238,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     color: var(--muted);
 
     font-size: 13px;
-    line-height: 1.8;
+    line-height: 1.9;
   }
 
   .about-text p {
@@ -202,9 +246,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   .about-text p + p {
-    margin-top: 4px;
+    margin-top: 14px;
   }
 
+  .about-text .debut {
+    margin-top: 22px;
+
+    color: var(--text);
+  }
 
   /* =========================
      MOBILE
@@ -216,14 +265,19 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       padding: 40px 20px 64px;
     }
 
+    /* =========================
+       PAGE TITLE
+    ========================= */
+
     h1 {
-      margin-bottom: 32px;
+      margin: 0 0 32px;
 
       font-size: 32px;
     }
 
-
-    /* 1 COLUMN */
+    /* =========================
+       1 COLUMN
+    ========================= */
 
     .about-grid {
       grid-template-columns: 1fr;
@@ -231,15 +285,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       gap: 34px;
     }
 
-
-    /* PHOTO */
+    /* =========================
+       PHOTO
+    ========================= */
 
     .about-image {
       aspect-ratio: 4 / 3;
     }
 
-
-    /* ABOUT TSUKINAMI */
+    /* =========================
+       ABOUT TSUKINAMI
+    ========================= */
 
     .eyebrow {
       margin-bottom: 12px;
@@ -250,8 +306,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       text-align: center;
     }
 
-
-    /* CATCH COPY */
+    /* =========================
+       CATCH COPY
+    ========================= */
 
     .about-content h2 {
       display: flex;
@@ -269,8 +326,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       display: block;
     }
 
-
-    /* DECORATION */
+    /* =========================
+       DECORATION
+    ========================= */
 
     .about-decoration {
       gap: 10px;
@@ -282,16 +340,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       font-size: 10px;
     }
 
-
-    /* DESCRIPTION */
+    /* =========================
+       DESCRIPTION
+    ========================= */
 
     .about-text {
       font-size: 11px;
-      line-height: 1.8;
+      line-height: 1.9;
     }
 
     .about-text p + p {
-      margin-top: 3px;
+      margin-top: 12px;
+    }
+
+    .about-text .debut {
+      margin-top: 20px;
     }
   }
 </style>

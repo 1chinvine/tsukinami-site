@@ -487,9 +487,24 @@ const [
   .map(Number);
 ---
 
-<BaseLayout title="SCHEDULE | ツキナミ">
+<BaseLayout
+  title="ツキナミ スケジュール｜ライブ・イベント・チケット情報"
+  description="6人組アイドルグループ「ツキナミ」のライブ・イベントスケジュール。出演予定、会場、開演時間、チケット発売情報・購入リンクをまとめています。"
+>
 
   <main class="schedule-page">
+
+    <!-- =========================
+         PAGE HEADER
+    ========================== -->
+
+    <header class="page-header">
+      <h1>SCHEDULE</h1>
+
+      <p class="page-description">
+        ツキナミのライブ・イベント、チケット発売情報を掲載しています。
+      </p>
+    </header>
 
     <!-- =========================
          CALENDAR + LIST
@@ -498,12 +513,10 @@ const [
     <div class="schedule-layout">
 
       <!-- =====================
-           TITLE + FILTER + CALENDAR
+           FILTER + CALENDAR
       ====================== -->
 
       <aside class="calendar-area">
-
-        <h1>SCHEDULE</h1>
 
         <!-- =====================
              FILTER
@@ -1552,17 +1565,32 @@ const [
   }
 
   h1 {
-    margin: 8px 0 34px;
+    margin: 8px 0 18px;
 
     font-size:
       clamp(
-        36px,
-        4vw,
-        52px
+        40px,
+        5vw,
+        64px
       );
 
     line-height: 1;
     font-weight: 600;
+  }
+
+  /* =========================
+     DESCRIPTION
+  ========================= */
+
+  .page-description {
+    max-width: 680px;
+
+    margin: 0 0 32px;
+
+    color: var(--muted);
+
+    font-size: 13px;
+    line-height: 1.9;
   }
 
   /* =========================
@@ -2374,9 +2402,16 @@ const [
       margin:
         6px
         0
-        26px;
+        14px;
 
       font-size: 32px;
+    }
+
+    .page-description {
+      margin-bottom: 32px;
+
+      font-size: 11px;
+      line-height: 1.8;
     }
 
     /* FILTER */

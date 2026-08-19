@@ -5,19 +5,44 @@ import { getTsukinamiNews } from '../lib/bitfan';
 const news = await getTsukinamiNews();
 ---
 
-<BaseLayout title="NEWS | ツキナミ">
+<BaseLayout
+  title="ツキナミ NEWS｜最新情報・お知らせ"
+  description="6人組アイドルグループ「ツキナミ」の最新情報・お知らせ。ライブ、イベント、リリースなどの公式NEWSをまとめています。"
+>
   <main class="news-page">
 
-    <h1>NEWS</h1>
+    <!-- =========================
+         PAGE HEADER
+    ========================= -->
+
+    <header class="page-header">
+      <h1>NEWS</h1>
+
+      <p class="page-description">
+        ツキナミの最新情報・お知らせを掲載しています。
+      </p>
+    </header>
+
+    <!-- =========================
+         NEWS LIST
+    ========================= -->
 
     <div class="news-list">
       {
         news.map((item) => (
           <article class="news-item">
 
+            <!-- =========================
+                 DATE
+            ========================= -->
+
             <p class="news-date">
               {item.date}
             </p>
+
+            <!-- =========================
+                 CONTENT
+            ========================= -->
 
             <div class="news-content">
               <h2>
@@ -38,6 +63,10 @@ const news = await getTsukinamiNews();
         ))
       }
     </div>
+
+    <!-- =========================
+         EMPTY
+    ========================= -->
 
     {
       news.length === 0 && (
@@ -62,14 +91,36 @@ const news = await getTsukinamiNews();
     padding: 72px 40px 84px;
   }
 
-  h1 {
-    margin: 0 0 48px;
+  /* =========================
+     PAGE HEADER
+  ========================= */
 
-    font-size: clamp(36px, 4vw, 52px);
+  .page-header {
+    margin: 0;
+  }
+
+  h1 {
+    margin: 8px 0 20px;
+
+    font-size: clamp(40px, 5vw, 64px);
     line-height: 1;
     font-weight: 600;
   }
 
+  /* =========================
+     DESCRIPTION
+  ========================= */
+
+  .page-description {
+    max-width: 680px;
+
+    margin: 0 0 32px;
+
+    color: var(--muted);
+
+    font-size: 13px;
+    line-height: 1.9;
+  }
 
   /* =========================
      NEWS LIST
@@ -91,7 +142,6 @@ const news = await getTsukinamiNews();
     border-bottom: 1px solid var(--line);
   }
 
-
   /* =========================
      DATE
   ========================= */
@@ -105,7 +155,6 @@ const news = await getTsukinamiNews();
     line-height: 1.5;
     letter-spacing: 0.08em;
   }
-
 
   /* =========================
      CONTENT
@@ -122,7 +171,6 @@ const news = await getTsukinamiNews();
     line-height: 1.5;
     font-weight: 500;
   }
-
 
   /* =========================
      OFFICIAL LINK
@@ -150,7 +198,6 @@ const news = await getTsukinamiNews();
     border-color: var(--accent);
   }
 
-
   /* =========================
      EMPTY
   ========================= */
@@ -163,7 +210,6 @@ const news = await getTsukinamiNews();
     font-size: 12px;
   }
 
-
   /* =========================
      MOBILE
   ========================= */
@@ -174,11 +220,30 @@ const news = await getTsukinamiNews();
       padding: 40px 20px 52px;
     }
 
+    /* =========================
+       PAGE TITLE
+    ========================= */
+
     h1 {
-      margin-bottom: 32px;
+      margin: 0 0 14px;
 
       font-size: 32px;
     }
+
+    /* =========================
+       DESCRIPTION
+    ========================= */
+
+    .page-description {
+      margin-bottom: 32px;
+
+      font-size: 11px;
+      line-height: 1.8;
+    }
+
+    /* =========================
+       NEWS
+    ========================= */
 
     .news-item {
       grid-template-columns: 1fr;

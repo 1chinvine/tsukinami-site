@@ -3,29 +3,46 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { discography } from '../data/discography';
 ---
 
-<BaseLayout title="DISCOGRAPHY | ツキナミ">
+<BaseLayout
+  title="ツキナミ ディスコグラフィー｜楽曲・リリース情報"
+  description="6人組アイドルグループ「ツキナミ」のディスコグラフィー。楽曲、シングル、リリース情報、配信リンクを掲載しています。"
+>
   <main class="page">
+
     <h1>DISCOGRAPHY</h1>
+
+    <p class="page-description">
+      ツキナミの楽曲・リリース情報を掲載しています。
+    </p>
 
     <div class="discography-grid">
       {
         discography.map((release) => (
           <article class="discography-item">
 
-            <!-- JACKET -->
+            <!-- =========================
+                 JACKET
+            ========================= -->
+
             <div class="cover">
               <img
                 src={release.image}
-                alt={release.title}
+                alt={`ツキナミ「${release.title}」ジャケット`}
               />
             </div>
 
-            <!-- TYPE -->
+            <!-- =========================
+                 TYPE
+            ========================= -->
+
             <p class="type">
               {release.type}
             </p>
 
-            <!-- TITLE + LISTEN -->
+            <!-- =========================
+                 TITLE + LISTEN
+            ========================= -->
+
             <div class="title-row">
               <h2>{release.title}</h2>
 
@@ -46,7 +63,10 @@ import { discography } from '../data/discography';
               )}
             </div>
 
-            <!-- RELEASE DATE -->
+            <!-- =========================
+                 RELEASE DATE
+            ========================= -->
+
             <p class="release-date">
               {release.releaseDate}
             </p>
@@ -55,6 +75,7 @@ import { discography } from '../data/discography';
         ))
       }
     </div>
+
   </main>
 </BaseLayout>
 
@@ -66,15 +87,35 @@ import { discography } from '../data/discography';
   .page {
     max-width: 1200px;
     margin: 0 auto;
+
     padding: 100px 40px 120px;
   }
 
+  /* =========================
+     PAGE TITLE
+  ========================= */
+
   h1 {
-    margin: 8px 0 56px;
+    margin: 8px 0 20px;
 
     font-size: clamp(40px, 5vw, 64px);
     line-height: 1;
     font-weight: 600;
+  }
+
+  /* =========================
+     DESCRIPTION
+  ========================= */
+
+  .page-description {
+    max-width: 680px;
+
+    margin: 0 0 32px;
+
+    color: var(--muted);
+
+    font-size: 13px;
+    line-height: 1.9;
   }
 
   /* =========================
@@ -83,6 +124,7 @@ import { discography } from '../data/discography';
 
   .discography-grid {
     display: grid;
+
     grid-template-columns: repeat(3, 1fr);
 
     gap: 64px 32px;
@@ -139,6 +181,7 @@ import { discography } from '../data/discography';
 
   .title-row {
     display: flex;
+
     align-items: center;
 
     gap: 10px;
@@ -158,33 +201,35 @@ import { discography } from '../data/discography';
 
   .listen-link {
     display: grid;
+
     place-items: center;
 
     width: 17px;
     height: 17px;
 
-    flex-shrink: 0;
-
-    opacity: 0.55;
-
-    transition:
-      opacity 0.2s ease,
-      transform 0.2s ease;
+    flex: 0 0 auto;
   }
 
   .listen-link img {
-    display: block;
+  display: block;
 
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 
-    filter: invert(1);
-  }
+  object-fit: contain;
 
-  .listen-link:hover {
-    opacity: 1;
-    transform: translateY(-2px);
-  }
+  filter: brightness(0) invert(1);
+  opacity: 0.7;
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.listen-link:hover img {
+  opacity: 1;
+  transform: scale(1.08);
+}
 
   /* =========================
      RELEASE DATE
@@ -195,7 +240,7 @@ import { discography } from '../data/discography';
 
     color: var(--muted);
 
-    font-size: 12px;
+    font-size: 11px;
     letter-spacing: 0.08em;
   }
 
@@ -204,21 +249,45 @@ import { discography } from '../data/discography';
   ========================= */
 
   @media (max-width: 700px) {
+
     .page {
       padding: 40px 20px 52px;
     }
 
+    /* =========================
+       PAGE TITLE
+    ========================= */
+
     h1 {
-      margin: 0 0 24px;
+      margin: 0 0 14px;
 
       font-size: 32px;
     }
 
-    .discography-grid {
-      grid-template-columns: repeat(2, 1fr);
+    /* =========================
+       DESCRIPTION
+    ========================= */
 
-      gap: 30px 14px;
+    .page-description {
+      margin-bottom: 32px;
+
+      font-size: 11px;
+      line-height: 1.8;
     }
+
+    /* =========================
+       GRID
+    ========================= */
+
+    .discography-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+
+      gap: 36px 14px;
+    }
+
+    /* =========================
+       TYPE
+    ========================= */
 
     .type {
       margin: 10px 0 4px;
@@ -226,21 +295,34 @@ import { discography } from '../data/discography';
       font-size: 8px;
     }
 
+    /* =========================
+       TITLE
+    ========================= */
+
     .title-row {
-      gap: 7px;
+      gap: 6px;
     }
 
     h2 {
       font-size: 14px;
+      line-height: 1.4;
     }
+
+    /* =========================
+       LISTEN ICON
+    ========================= */
 
     .listen-link {
       width: 14px;
       height: 14px;
     }
 
+    /* =========================
+       RELEASE DATE
+    ========================= */
+
     .release-date {
-      margin-top: 5px;
+      margin-top: 7px;
 
       font-size: 8px;
     }
