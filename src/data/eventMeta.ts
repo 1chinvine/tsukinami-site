@@ -91,6 +91,19 @@ export const eventMeta: Record<string, EventMeta> = {
 
 },
 
+'2026-10-03|かがやきフェス2026': {
+    type: 'LIVE',
+    ticketStart: '2026-06-04T22:00:00+09:00',
+    ticketUrl: 'https://eplus.jp/sf/detail/3864720001?P6=001&P1=0402&P59=1',
+
+},
+
+'2026-10-04|かがやきフェス2026': {
+    type: 'LIVE',
+    ticketStart: '2026-06-04T22:00:00+09:00',
+    ticketUrl: 'https://eplus.jp/sf/detail/3864720001?P6=001&P1=0402&P59=1',
+
+},
 
 
 
