@@ -1,80 +1,236 @@
+export type TsukinamiEventType =
+  | 'ライブ'
+  | 'イベント'
+  | 'チケ発';
+
+export type TsukinamiEventStatus =
+  | '予定'
+  | '終了'
+  | '中止'
+  | '延期';
+
+export type TsukinamiReviewStatus =
+  | '未確認'
+  | '要確認'
+  | '確認済み';
+
 export type TsukinamiEvent = {
+  id: string;
+
   title: string;
+
   date: string;
+
   venue: string;
+
   time: string;
-  status: string;
+
+  status: TsukinamiEventStatus | string;
+
   url: string;
+
+  eventType: TsukinamiEventType | string;
+
+  reviewStatus:
+    TsukinamiReviewStatus | string;
 };
 
-const token = import.meta.env.NOTION_TOKEN;
+type NotionQueryResponse = {
+  results?: Array<{
+    id: string;
 
-async function getTsukinamiDataSourceId() {
-  const response = await fetch('https://api.notion.com/v1/search', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Notion-Version': '2026-03-11',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      query: 'Tsukinami Events',
-    }),
-  });
+    properties?: Record<
+      string,
+      any
+    >;
+  }>;
 
-  if (!response.ok) {
-    throw new Error(`Notion search failed: ${response.status}`);
+  has_more?: boolean;
+
+  next_cursor?: string | null;
+};
+
+function getRequiredEnvironmentVariable(
+  value: string | undefined,
+  name: string,
+): string {
+  if (!value) {
+    throw new Error(
+      `${name}が設定されていません。`,
+    );
   }
 
-  const data = await response.json();
-
-  const dataSource = data.results?.find(
-    (item: any) => item.object === 'data_source'
-  );
-
-  if (!dataSource) {
-    throw new Error('Tsukinami Events data source not found');
-  }
-
-  return dataSource.id;
+  return value;
 }
 
-export async function getTsukinamiEvents(): Promise<TsukinamiEvent[]> {
-  const dataSourceId = await getTsukinamiDataSourceId();
+const token =
+  getRequiredEnvironmentVariable(
+    import.meta.env.NOTION_TOKEN,
+    'NOTION_TOKEN',
+  );
 
+const dataSourceId =
+  getRequiredEnvironmentVariable(
+    import.meta.env
+      .NOTION_EVENTS_DATA_SOURCE_ID,
+    'NOTION_EVENTS_DATA_SOURCE_ID',
+  );
+
+const notionVersion = '2026-03-11';
+
+function readPlainText(
+  items:
+    | Array<{
+        plain_text?: string;
+      }>
+    | undefined,
+): string {
+  if (!Array.isArray(items)) {
+    return '';
+  }
+
+  return items
+    .map(
+      (item) =>
+        item.plain_text ?? '',
+    )
+    .join('');
+}
+
+async function queryEvents(
+  startCursor?: string,
+): Promise<NotionQueryResponse> {
   const response = await fetch(
     `https://api.notion.com/v1/data_sources/${dataSourceId}/query`,
     {
       method: 'POST',
+
       headers: {
-        Authorization: `Bearer ${token}`,
-        'Notion-Version': '2026-03-11',
-        'Content-Type': 'application/json',
+        Authorization:
+          `Bearer ${token}`,
+
+        'Notion-Version':
+          notionVersion,
+
+        'Content-Type':
+          'application/json',
       },
+
       body: JSON.stringify({
         page_size: 100,
+
+        /*
+         * 公開オンのイベントだけを
+         * Webサイトへ取得する。
+         */
+        filter: {
+          property: '公開',
+
+          checkbox: {
+            equals: true,
+          },
+        },
+
+        ...(startCursor
+          ? {
+              start_cursor:
+                startCursor,
+            }
+          : {}),
       }),
-    }
+    },
   );
 
   if (!response.ok) {
-    throw new Error(`Notion query failed: ${response.status}`);
+    const responseText =
+      await response.text();
+
+    throw new Error(
+      [
+        'Notionのイベント取得に失敗しました。',
+        `Status: ${response.status}`,
+        responseText,
+      ].join('\n'),
+    );
   }
 
-  const data = await response.json();
+  return (
+    await response.json()
+  ) as NotionQueryResponse;
+}
 
-  const events: TsukinamiEvent[] = (data.results ?? []).map((event: any) => {
-    const props = event.properties;
+export async function getTsukinamiEvents():
+Promise<TsukinamiEvent[]> {
+  const results:
+    NonNullable<
+      NotionQueryResponse['results']
+    > = [];
 
-    return {
-      title: props['イベント']?.title?.[0]?.plain_text ?? '',
-      date: props['日付']?.date?.start ?? '',
-      venue: props['会場']?.rich_text?.[0]?.plain_text ?? '',
-      time: props['時刻']?.rich_text?.[0]?.plain_text ?? '',
-      status: props['状態']?.select?.name ?? '',
-      url: props['公式情報']?.url ?? '',
-    };
-  });
+  let startCursor:
+    string | undefined;
 
-  return events;
+  do {
+    const response:
+      NotionQueryResponse =
+      await queryEvents(startCursor);
+
+    results.push(
+      ...(response.results ?? []),
+    );
+
+    startCursor =
+      response.has_more
+        ? response.next_cursor ??
+          undefined
+        : undefined;
+  } while (startCursor);
+
+  return results
+    .map((page) => {
+      const properties =
+        page.properties ?? {};
+
+      return {
+        id: page.id,
+
+        title: readPlainText(
+          properties['イベント']
+            ?.title,
+        ),
+
+        date:
+          properties['日付']
+            ?.date?.start ?? '',
+
+        venue: readPlainText(
+          properties['会場']
+            ?.rich_text,
+        ),
+
+        time: readPlainText(
+          properties['時刻']
+            ?.rich_text,
+        ),
+
+        status:
+          properties['状態']
+            ?.select?.name ?? '',
+
+        url:
+          properties['公式情報']
+            ?.url ?? '',
+
+        eventType:
+          properties['種別']
+            ?.select?.name ?? '',
+
+        reviewStatus:
+          properties['確認状態']
+            ?.select?.name ?? '',
+      };
+    })
+    .filter(
+      (event) =>
+        Boolean(event.title),
+    );
 }

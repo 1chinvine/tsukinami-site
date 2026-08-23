@@ -43,6 +43,51 @@ type ScheduleItem = {
   sourceEvent?: TsukinamiEvent;
 };
 
+const getNotionScheduleType = (
+  event: TsukinamiEvent,
+  fallbackType?: EventType
+): ScheduleType => {
+  switch (event.eventType) {
+    case 'ライブ':
+      return 'LIVE';
+
+    case 'イベント':
+      return 'EVENT';
+
+    case 'チケ発':
+      return 'TICKET';
+
+    default:
+      return fallbackType ?? 'UNCLASSIFIED';
+  }
+};
+
+const createTicketStart = (
+  date: string,
+  time: string
+): string | undefined => {
+  if (!date || !time) {
+    return undefined;
+  }
+
+  const matched = time.match(
+    /(?:^|[^0-9])(\d{1,2}):(\d{2})/
+  );
+
+  if (!matched) {
+    return undefined;
+  }
+
+  const hour = matched[1]?.padStart(2, '0');
+  const minute = matched[2];
+
+  if (!hour || !minute) {
+    return undefined;
+  }
+
+  return `${date}T${hour}:${minute}:00+09:00`;
+};
+
 /* =========================
    TODAY / JST
 ========================= */
@@ -171,16 +216,32 @@ const scheduleItems: ScheduleItem[] =
         /*
           通常イベント
         */
+        const notionType =
+          getNotionScheduleType(
+            event,
+            meta.type
+          );
+
+        const isTicketEvent =
+          notionType === 'TICKET';
+
+        const notionTicketStart =
+          isTicketEvent
+            ? createTicketStart(
+                event.date,
+                event.time
+              )
+            : undefined;
+
         const items: ScheduleItem[] = [
           {
-            id: `event-${index}`,
+            id: `event-${event.id || index}`,
 
             date:
               event.date,
 
             type:
-              meta.type ??
-              'UNCLASSIFIED',
+              notionType,
 
             title:
               displayTitle,
@@ -195,13 +256,20 @@ const scheduleItems: ScheduleItem[] =
               event.url,
 
             ticketStart:
-              meta.ticketStart,
+              isTicketEvent
+                ? notionTicketStart
+                : meta.ticketStart,
+
+            ticketTime:
+              isTicketEvent
+                ? event.time
+                : undefined,
 
             ticketUrl:
               meta.ticketUrl,
 
             isTicket:
-              false,
+              isTicketEvent,
 
             sourceEvent:
               event,
@@ -211,7 +279,10 @@ const scheduleItems: ScheduleItem[] =
         /*
           チケ発を独立した予定として追加
         */
-        if (meta.ticketStart) {
+        if (
+          !isTicketEvent &&
+          meta.ticketStart
+        ) {
           const ticketDateTime =
             getTicketDateTimeJST(
               meta.ticketStart
@@ -251,10 +322,6 @@ const scheduleItems: ScheduleItem[] =
         return items;
       }
     )
-    .filter(
-      (item) =>
-        Boolean(item.date)
-    )
     .sort(
       (a, b) =>
         a.date.localeCompare(
@@ -262,18 +329,28 @@ const scheduleItems: ScheduleItem[] =
         )
     );
 
+const datedScheduleItems =
+  scheduleItems.filter(
+    (item) => Boolean(item.date)
+  );
+
+const undatedItems =
+  scheduleItems.filter(
+    (item) => !item.date
+  );
+
 /* =========================
    UPCOMING / PAST
 ========================= */
 
 const upcomingItems =
-  scheduleItems.filter(
+  datedScheduleItems.filter(
     (item) =>
       item.date >= today
   );
 
 const pastItems =
-  scheduleItems
+  datedScheduleItems
     .filter(
       (item) =>
         item.date < today
@@ -465,7 +542,7 @@ const createScheduleCalendarUrl = (
 ========================= */
 
 const calendarItems =
-  scheduleItems.map(
+  datedScheduleItems.map(
     (item) => ({
       date:
         item.date,
@@ -865,6 +942,114 @@ const [
         </section>
 
         <!-- =====================
+             DATE TBD
+        ====================== -->
+
+        {undatedItems.length > 0 && (
+          <section
+            class="schedule-section undated"
+            id="undated-section"
+          >
+            <div class="section-heading">
+              <p>DATE TBD</p>
+
+              <span id="undated-count">
+                {undatedItems.length} EVENTS
+              </span>
+            </div>
+
+            <div class="schedule-list">
+              {undatedItems.map((item) => {
+                const mapUrl = item.venue
+                  ? createGoogleMapsUrl(item.venue)
+                  : null;
+
+                const typeLabel =
+                  getTypeLabel(item.type);
+
+                return (
+                  <article
+                    id={item.id}
+                    class="schedule-item undated-item"
+                    data-type={item.type}
+                    data-date=""
+                  >
+                    <div class="date date-tbd">
+                      <span class="date-main">
+                        TBD
+                      </span>
+
+                      <span class="date-weekday">
+                        日付未確認
+                      </span>
+                    </div>
+
+                    <div class="event-info">
+                      {typeLabel && (
+                        <span
+                          class={`event-tag tag-${item.type.toLowerCase()}`}
+                        >
+                          {typeLabel}
+                        </span>
+                      )}
+
+                      <h2>{item.title}</h2>
+
+                      <div class="event-meta">
+                        {item.venue && (
+                          <div class="venue-row">
+                            <p>
+                              <span>VENUE</span>
+                              {item.venue}
+                            </p>
+
+                            {mapUrl && (
+                              <a
+                                class="map-link"
+                                href={mapUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="Google Mapsで開く"
+                                aria-label={`${item.venue}をGoogle Mapsで開く`}
+                              >
+                                <img
+                                  src="/images/icons/googlemaps.svg"
+                                  alt=""
+                                />
+
+                                <span>MAP</span>
+                              </a>
+                            )}
+                          </div>
+                        )}
+
+                        {item.time && (
+                          <p>
+                            <span>TIME</span>
+                            {item.time}
+                          </p>
+                        )}
+                      </div>
+
+                      {item.url && (
+                        <a
+                          class="official-link"
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          公式情報 →
+                        </a>
+                      )}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        <!-- =====================
              PAST
         ====================== -->
 
@@ -1088,6 +1273,11 @@ const [
       'past-section'
     );
 
+  const undatedSection =
+    document.getElementById(
+      'undated-section'
+    );
+
   const upcomingCount =
     document.getElementById(
       'upcoming-count'
@@ -1096,6 +1286,11 @@ const [
   const pastCount =
     document.getElementById(
       'past-count'
+    );
+
+  const undatedCount =
+    document.getElementById(
+      'undated-count'
     );
 
   const pad = (number) =>
@@ -1410,6 +1605,9 @@ const [
       let pastVisible =
         0;
 
+      let undatedVisible =
+        0;
+
       scheduleElements.forEach(
         (item) => {
 
@@ -1441,6 +1639,14 @@ const [
           ) {
             pastVisible++;
           }
+
+          if (
+            item.closest(
+              '#undated-section'
+            )
+          ) {
+            undatedVisible++;
+          }
         }
       );
 
@@ -1454,6 +1660,11 @@ const [
           `${pastVisible} EVENTS`;
       }
 
+      if (undatedCount) {
+        undatedCount.textContent =
+          `${undatedVisible} EVENTS`;
+      }
+
       if (upcomingSection) {
         upcomingSection.hidden =
           upcomingVisible === 0;
@@ -1462,6 +1673,11 @@ const [
       if (pastSection) {
         pastSection.hidden =
           pastVisible === 0;
+      }
+
+      if (undatedSection) {
+        undatedSection.hidden =
+          undatedVisible === 0;
       }
     };
 
@@ -2282,6 +2498,24 @@ const [
 
   .ticket-purchase[hidden] {
     display: none;
+  }
+
+  /* =========================
+     DATE TBD
+  ========================= */
+
+  .undated {
+    margin-top: 56px;
+  }
+
+  .date-tbd .date-main {
+    font-size: 22px;
+    letter-spacing: 0.08em;
+  }
+
+  .date-tbd .date-weekday {
+    color: #ddbb99;
+    letter-spacing: 0.08em;
   }
 
   /* =========================

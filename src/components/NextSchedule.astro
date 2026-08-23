@@ -32,6 +32,7 @@ const nextEvent = events
   .filter((event) => {
     if (event.status !== '予定') return false;
     if (!event.date) return false;
+    if (event.eventType === 'チケ発') return false;
 
     return event.date >= today;
   })
