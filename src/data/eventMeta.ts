@@ -61,6 +61,8 @@ export const eventMeta: Record<string, EventMeta> = {
 
   '2026-08-31|THE VENUS?? 女神祝祭式 2026（鍔木心花 生誕祭）': {
     type: 'EVENT',
+     ticketStart: '2026-08-17T22:00:00+09:00',
+    ticketUrl: 'https://tiget.net/events/513626',
   },
 
   '2026-09-10|BEEEEM FES Vol.9': {
