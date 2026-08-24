@@ -16,4 +16,14 @@ export const discography = [
     image: '/images/discography/release-a.jpg',
     link: 'https://linkco.re/sgbApv0v',
   },
+
+  {
+    slug: 'Halo',
+    title: 'Halo',
+    type: 'Album',
+    releaseDate: '2026.08.24',
+    image: '/images/discography/release-c.jpg',
+    link: 'https://linkco.re/xVeUQNGn',
+  },
+
 ];
