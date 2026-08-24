@@ -1,6 +1,22 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { discography } from '../data/discography';
+
+/*
+  リリース日が新しい順に並び替え
+  discography.ts 側の記載順には依存しない
+*/
+const sortedDiscography = [...discography].sort((a, b) => {
+  const dateA = new Date(
+    a.releaseDate.replace(/\./g, '-')
+  ).getTime();
+
+  const dateB = new Date(
+    b.releaseDate.replace(/\./g, '-')
+  ).getTime();
+
+  return dateB - dateA;
+});
 ---
 
 <BaseLayout
@@ -17,7 +33,7 @@ import { discography } from '../data/discography';
 
     <div class="discography-grid">
       {
-        discography.map((release) => (
+        sortedDiscography.map((release) => (
           <article class="discography-item">
 
             <!-- =========================
@@ -211,25 +227,25 @@ import { discography } from '../data/discography';
   }
 
   .listen-link img {
-  display: block;
+    display: block;
 
-  width: 100%;
-  height: 100%;
+    width: 100%;
+    height: 100%;
 
-  object-fit: contain;
+    object-fit: contain;
 
-  filter: brightness(0) invert(1);
-  opacity: 0.7;
+    filter: brightness(0) invert(1);
+    opacity: 0.7;
 
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
-}
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
 
-.listen-link:hover img {
-  opacity: 1;
-  transform: scale(1.08);
-}
+  .listen-link:hover img {
+    opacity: 1;
+    transform: scale(1.08);
+  }
 
   /* =========================
      RELEASE DATE

@@ -1,19 +1,42 @@
 ---
 import { discography } from '../data/discography';
 
-const latestRelease = discography[0];
+/*
+  リリース日が最も新しい作品を自動取得
+  discography.ts 側の記載順には依存しない
+*/
+const latestRelease = [...discography].sort((a, b) => {
+  const dateA = new Date(
+    a.releaseDate.replace(/\./g, '-')
+  ).getTime();
+
+  const dateB = new Date(
+    b.releaseDate.replace(/\./g, '-')
+  ).getTime();
+
+  return dateB - dateA;
+})[0];
 ---
 
 <section class="latest-release">
   <div class="inner">
-    <p class="label">DISCOGRAPHY</p>
-    <h2>NEW RELEASE</h2>
+
+    <p class="label">
+      DISCOGRAPHY
+    </p>
+
+    <h2>
+      NEW RELEASE
+    </h2>
 
     {
       latestRelease ? (
         <div class="release">
 
-          <!-- JACKET -->
+          <!-- =========================
+               JACKET
+          ========================= -->
+
           <div class="cover">
             <img
               src={latestRelease.image}
@@ -21,14 +44,22 @@ const latestRelease = discography[0];
             />
           </div>
 
-          <!-- RELEASE INFORMATION -->
+          <!-- =========================
+               RELEASE INFORMATION
+          ========================= -->
+
           <div class="release-info">
+
+            <!-- TYPE -->
 
             <p class="type">
               {latestRelease.type}
             </p>
 
-            <!-- TITLE + LISTEN ICON -->
+            <!-- =========================
+                 TITLE + LISTEN ICON
+            ========================= -->
+
             <div class="title-row">
 
               <h3>
@@ -54,12 +85,18 @@ const latestRelease = discography[0];
 
             </div>
 
-            <!-- RELEASE DATE -->
+            <!-- =========================
+                 RELEASE DATE
+            ========================= -->
+
             <p class="date">
               {latestRelease.releaseDate} RELEASE
             </p>
 
-            <!-- DISCOGRAPHY -->
+            <!-- =========================
+                 DISCOGRAPHY
+            ========================= -->
+
             <a
               class="view-all"
               href="/discography"
@@ -68,11 +105,15 @@ const latestRelease = discography[0];
             </a>
 
           </div>
+
         </div>
       ) : (
-        <p>現在登録されている作品はありません。</p>
+        <p>
+          現在登録されている作品はありません。
+        </p>
       )
     }
+
   </div>
 </section>
 
