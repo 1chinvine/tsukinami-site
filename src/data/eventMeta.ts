@@ -107,6 +107,14 @@ export const eventMeta: Record<string, EventMeta> = {
 
 },
 
+ '2026-09-04|LUMINA FES #1': {
+    type: 'LIVE',
+    displayTitle: 'LUMINA FES #1',
+    ticketStart: '2026-08-21T23:59:00+09:00',
+    ticketUrl: 'https://t.pia.jp/pia/ticketInformation.do?eventCd=2632846&rlsCd=&lotRlsCd=38284',
+  },
+
+
 
 
 
