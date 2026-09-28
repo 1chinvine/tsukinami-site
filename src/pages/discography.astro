@@ -40,12 +40,27 @@ const sortedDiscography = [...discography].sort((a, b) => {
                  JACKET
             ========================= -->
 
-            <div class="cover">
-              <img
-                src={release.image}
-                alt={`ツキナミ「${release.title}」ジャケット`}
-              />
-            </div>
+            {release.link ? (
+              <a
+                class="cover"
+                href={release.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${release.title}を聴く`}
+              >
+                <img
+                  src={release.image}
+                  alt={`ツキナミ「${release.title}」ジャケット`}
+                />
+              </a>
+            ) : (
+              <div class="cover">
+                <img
+                  src={release.image}
+                  alt={`ツキナミ「${release.title}」ジャケット`}
+                />
+              </div>
+            )}
 
             <!-- =========================
                  TYPE
@@ -155,12 +170,16 @@ const sortedDiscography = [...discography].sort((a, b) => {
   ========================= */
 
   .cover {
+    display: block;
+
     width: 100%;
     aspect-ratio: 1 / 1;
 
     overflow: hidden;
 
     background: rgba(255, 255, 255, 0.06);
+
+    text-decoration: none;
   }
 
   .cover img {
@@ -174,7 +193,11 @@ const sortedDiscography = [...discography].sort((a, b) => {
     transition: transform 0.35s ease;
   }
 
-  .discography-item:hover .cover img {
+  a.cover {
+    cursor: pointer;
+  }
+
+  a.cover:hover img {
     transform: scale(1.03);
   }
 
