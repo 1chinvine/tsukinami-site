@@ -26,4 +26,13 @@ export const discography = [
     link: 'https://linkco.re/xVeUQNGn',
   },
 
+ {
+    slug: 'yubiwawohazusitte',
+    title: '指輪をはずしてっ！',
+    type: 'single',
+    releaseDate: '2026.09.30',
+    image: '/images/discography/release-d.jpg',
+    link: 'https://linkco.re/Gzz0Xbs1',
+  },
+
 ];
