@@ -28,7 +28,7 @@ export const discography = [
 
  {
     slug: 'yubiwawohazusitte',
-    title: '指輪をはずしてっ！',
+    title: '指輪を外してっ！',
     type: 'single',
     releaseDate: '2026.09.30',
     image: '/images/discography/release-d.jpg',
